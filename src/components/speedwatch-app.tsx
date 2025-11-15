@@ -8,7 +8,7 @@ import {
   ControlPosition,
   Marker,
 } from "@vis.gl/react-google-maps";
-import { Camera, Gauge, Menu, Power, User, Route, LoaderCircle, Info, List } from "lucide-react";
+import { Camera, Menu, User } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
@@ -26,13 +26,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Info, List } from 'lucide-react';
+import { Badge } from './ui/badge';
 
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { ReportDialog } from "./report-dialog";
 import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
-import { Badge } from "./ui/badge";
 
 
 interface SpeedwatchAppProps {
@@ -51,10 +52,7 @@ const SidebarContent = ({
     onCameraSelect: (camera: CameraType) => void;
   }) => (
     <>
-      <SheetHeader className="p-4">
-        <Logo />
-        <SheetTitle className="sr-only">App Menu</SheetTitle>
-      </SheetHeader>
+      <Logo />
       <Separator />
       <Tabs defaultValue="info" className="flex-1 flex flex-col overflow-hidden">
       <TabsList className="m-4">
@@ -135,6 +133,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             </SheetTrigger>
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
+            <SheetHeader className="p-4">
+                <SheetTitle className="sr-only">App Menu</SheetTitle>
+            </SheetHeader>
             <SidebarContent 
               selectedCamera={selectedCamera}
               userLocation={location}
@@ -144,7 +145,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
           </SheetContent>
         </Sheet>
       ) : (
-        <div className="w-[300px] border-r h-full shadow-md z-10 flex flex-col">
+        <div className="w-[300px] border-r h-full shadow-md z-10 flex flex-col p-4">
           <SidebarContent 
             selectedCamera={selectedCamera}
             userLocation={location}
