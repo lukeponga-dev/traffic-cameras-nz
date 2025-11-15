@@ -140,9 +140,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   
   const isMobile = useIsMobile();
   
-  const locationOptions = {
+  const locationOptions = useMemo(() => ({
     enableHighAccuracy: true,
-  };
+  }), []);
 
   const location = useGeolocation(locationOptions);
 
