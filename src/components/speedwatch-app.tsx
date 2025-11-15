@@ -175,7 +175,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       return { lat: location.latitude, lng: location.longitude };
     }
     return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
-  }, [location]);
+  }, [location.latitude, location.longitude]);
 
 
   if (!isClient) {
@@ -191,15 +191,15 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
-      <div className="md:hidden">
+      {isMobile ? (
         <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-          <SheetTrigger asChild>
-            <MapControl position={ControlPosition.TOP_LEFT}>
+          <MapControl position={ControlPosition.TOP_LEFT}>
+            <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="m-4">
                   <Menu className="h-4 w-4" />
                 </Button>
-            </MapControl>
-          </SheetTrigger>
+            </SheetTrigger>
+          </MapControl>
           <SheetContent side="left" className="p-0 w-[300px]">
             <SidebarContent 
               typeFilter={typeFilter}
@@ -215,22 +215,22 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             />
           </SheetContent>
         </Sheet>
-      </div>
-
-      <div className="hidden md:block w-[300px] border-r h-full shadow-md z-10">
-        <SidebarContent 
-          typeFilter={typeFilter}
-          setTypeFilter={setTypeFilter}
-          showInactive={showInactive}
-          setShowInactive={setShowInactive}
-          filteredCamerasCount={filteredCameras.length}
-          totalCamerasCount={cameras.length}
-          isMobile={isMobile}
-          setMobileSheetOpen={setMobileSheetOpen}
-          selectedCamera={selectedCamera}
-          location={location}
-        />
-      </div>
+      ) : (
+        <div className="w-[300px] border-r h-full shadow-md z-10">
+          <SidebarContent 
+            typeFilter={typeFilter}
+            setTypeFilter={setTypeFilter}
+            showInactive={showInactive}
+            setShowInactive={setShowInactive}
+            filteredCamerasCount={filteredCameras.length}
+            totalCamerasCount={cameras.length}
+            isMobile={isMobile}
+            setMobileSheetOpen={setMobileSheetOpen}
+            selectedCamera={selectedCamera}
+            location={location}
+          />
+        </div>
+      )}
 
       <main className="flex-1 h-full relative">
         <Map
@@ -270,3 +270,5 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     </div>
   );
 }
+
+    
