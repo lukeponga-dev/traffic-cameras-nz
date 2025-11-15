@@ -25,7 +25,8 @@ async function getCameras(): Promise<SpeedCamera[]> {
 
     const result = convert.xml2js(xmlText, { compact: true, spaces: 2 });
     
-    const cameraList = (result as any)?.traffic?.cameraList?.camera;
+    const cameraList = (result as any)?.response?.camera;
+
     if (!cameraList) {
         console.error('Unexpected data structure from API. Full result:', JSON.stringify(result, null, 2));
         return [];
@@ -33,27 +34,34 @@ async function getCameras(): Promise<SpeedCamera[]> {
 
     const cameras: TrafficAPICamera[] = Array.isArray(cameraList) ? cameraList : [cameraList];
 
-    const activeCameras = cameras.filter(cam => getText(cam.status) === 'Active');
+    const activeCameras = cameras.filter(cam => getText(cam.status) !== 'Inactive' && cam.offline?._text !== 'true');
 
     return activeCameras.map(cam => {
         const speedLimitText = getText(cam.speedLimit);
-        const lat = parseFloat(getText(cam.lat));
-        const lon = parseFloat(getText(cam.lon));
+        const lat = parseFloat(getText(cam.latitude));
+        const lon = parseFloat(getText(cam.longitude));
 
         if (isNaN(lat) || isNaN(lon)) {
             return null;
         }
 
+        let cameraType: SpeedCamera['cameraType'] = 'Fixed';
+        if (getText(cam.type) === 'Red light') {
+          cameraType = 'Red light';
+        } else if (getText(cam.type) === 'Mobile') {
+          cameraType = 'Mobile';
+        }
+
         return {
             id: getText(cam.id),
             name: getText(cam.name),
-            region: getText(cam.region),
+            region: cam.region?.name?._text || 'N/A',
             latitude: lat,
             longitude: lon,
-            cameraType: getText(cam.type) as 'Fixed' | 'Mobile' | 'Red light',
+            cameraType: cameraType,
             speedLimit: speedLimitText ? parseInt(speedLimitText, 10) : null,
             status: getText(cam.status) as 'Active' | 'Inactive',
-            viewUrl: getText(cam.view),
+            viewUrl: `https://trafficnz.info${getText(cam.imageUrl)}`,
             description: getText(cam.description),
             direction: getText(cam.direction),
         }

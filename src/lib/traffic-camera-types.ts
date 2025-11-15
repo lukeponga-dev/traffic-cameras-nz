@@ -6,26 +6,22 @@ interface XmlTextNode {
 }
 
 export interface TrafficCamera {
-  traffic?: {
-    cameraList?: {
-        camera: Camera | Camera[];
-    }
+  response?: {
+    camera: Camera | Camera[];
   };
 }
 
 export interface Camera {
   id: XmlTextNode;
-  lat: XmlTextNode;
-  lon: XmlTextNode;
+  latitude: XmlTextNode;
+  longitude: XmlTextNode;
   name: XmlTextNode;
-  region: XmlTextNode;
-  subRegion: XmlTextNode;
+  region: { name: XmlTextNode };
   type: XmlTextNode;
   description: XmlTextNode;
   direction: XmlTextNode;
-  view: XmlTextNode;
-  width: XmlTextNode;
-  height: XmlTextNode;
+  imageUrl: XmlTextNode;
   status: XmlTextNode;
+  offline?: XmlTextNode;
   speedLimit?: XmlTextNode;
 }

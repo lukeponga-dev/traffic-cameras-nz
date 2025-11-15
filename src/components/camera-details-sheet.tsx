@@ -28,13 +28,19 @@ export function CameraDetailsSheet({
         {camera && (
           <div className="flex flex-col h-full">
             <div className="relative h-48 w-full">
-                <Image
-                    src={camera.viewUrl}
-                    alt={`Street view of ${camera.name}`}
-                    data-ai-hint="road street"
-                    fill
-                    className="object-cover"
-                />
+                {camera.viewUrl ? (
+                    <Image
+                        src={camera.viewUrl}
+                        alt={`Street view of ${camera.name}`}
+                        data-ai-hint="road street"
+                        fill
+                        className="object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <Camera className="w-12 h-12 text-muted-foreground"/>
+                    </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
             </div>
 
