@@ -13,7 +13,8 @@ import {
   MapPin,
   MessageSquare,
 } from "lucide-react";
-import { useEffect, useActionState } from "react";
+import { useEffect } from "react";
+import { useActionState } from "react";
 
 import { submitReport, type State } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -63,6 +64,8 @@ const reportFormSchema = z.object({
     .max(500, {
       message: "Description must not be longer than 500 characters.",
     }),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
 });
 
 type ReportFormValues = z.infer<typeof reportFormSchema>;
@@ -80,9 +83,10 @@ const SubmitButton = () => {
 interface ReportDialogProps {
   onOpenChange?: (open: boolean) => void;
   selectedCamera: SpeedCamera | null;
+  userLocation: { latitude: number | null, longitude: number | null };
 }
 
-export function ReportDialog({ onOpenChange, selectedCamera }: ReportDialogProps) {
+export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: ReportDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [state, formAction] = useActionState<State, FormData>(submitReport, {
@@ -127,7 +131,11 @@ export function ReportDialog({ onOpenChange, selectedCamera }: ReportDialogProps
   
   useEffect(() => {
     form.setValue('cameraId', selectedCamera?.id || "N/A");
-  }, [selectedCamera, form, open]);
+    if (userLocation.latitude && userLocation.longitude) {
+      form.setValue('latitude', userLocation.latitude);
+      form.setValue('longitude', userLocation.longitude);
+    }
+  }, [selectedCamera, userLocation, form, open]);
 
 
   return (
@@ -155,6 +163,28 @@ export function ReportDialog({ onOpenChange, selectedCamera }: ReportDialogProps
                 <FormItem className="hidden">
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="latitude"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input type="hidden" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="longitude"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input type="hidden" {...field} />
                   </FormControl>
                 </FormItem>
               )}

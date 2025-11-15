@@ -12,7 +12,8 @@ const reportSchema = z.object({
     "other",
   ]),
   description: z.string().min(10, "Please provide at least 10 characters."),
-  // userLocation is not submitted from this form, but can be added if needed
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
 });
 
 export type State = {
@@ -29,6 +30,8 @@ export async function submitReport(
       cameraId: formData.get("cameraId"),
       reportType: formData.get("reportType"),
       description: formData.get("description"),
+      latitude: formData.get("latitude"),
+      longitude: formData.get("longitude"),
     });
 
     if (!parsed.success) {
@@ -37,13 +40,18 @@ export async function submitReport(
         message: parsed.error.errors.map((e) => e.message).join(", "),
       };
     }
+    
+    const { latitude, longitude, ...reportData } = parsed.data;
 
-    // In a real application, you would first save the report to your database.
-    // For this demo, we'll go straight to the GenAI flow.
+    let userLocation;
+    if (latitude && longitude) {
+      userLocation = { latitude, longitude };
+    }
 
     const aiResponse = await reportDataError({
-      ...parsed.data,
-      cameraId: parsed.data.cameraId || "N/A",
+      ...reportData,
+      cameraId: reportData.cameraId || "N/A",
+      userLocation,
     });
 
     console.log("AI suggestion received:", aiResponse);

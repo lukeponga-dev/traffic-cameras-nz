@@ -133,6 +133,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         <ReportDialog
           onOpenChange={isMobile ? setMobileSheetOpen : undefined}
           selectedCamera={selectedCamera}
+          userLocation={location}
         />
         <ThemeToggle />
       </div>
@@ -143,6 +144,12 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
       {isMobile ? (
         <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+          <SheetContent side="left" className="p-0 w-[300px]">
+            <SheetHeader>
+              <SheetTitle className="sr-only">App Menu</SheetTitle>
+            </SheetHeader>
+            <SidebarContent />
+          </SheetContent>
           <MapControl position={ControlPosition.TOP_LEFT}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="m-4">
@@ -150,12 +157,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
               </Button>
             </SheetTrigger>
           </MapControl>
-          <SheetContent side="left" className="p-0 w-[300px]">
-             <SheetHeader>
-               <SheetTitle className="sr-only">App Menu</SheetTitle>
-             </SheetHeader>
-            <SidebarContent />
-          </SheetContent>
         </Sheet>
       ) : (
         <div className="w-[300px] border-r h-full shadow-md z-10">
