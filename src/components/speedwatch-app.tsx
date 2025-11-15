@@ -18,11 +18,12 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTrigger,
+  SheetTitle,
+  SheetHeader,
 } from "@/components/ui/sheet";
 
-import { SidebarContent } from "./sidebar-content";
+import { SidebarContent } from "@/components/sidebar-content";
 import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
@@ -64,7 +65,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
   }, [location.latitude, location.longitude]);
 
-  if (isMobile === undefined) {
+  if (typeof isMobile === 'undefined') {
     return <SpeedwatchAppSkeleton />;
   }
   
@@ -80,13 +81,16 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             </SheetTrigger>
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
-              <SidebarContent 
-                isMobile={isMobile}
-                selectedCamera={selectedCamera}
-                userLocation={location}
-                cameras={cameras}
-                onCameraSelect={handleCameraSelect}
-              />
+            <SheetHeader className="p-4 border-b">
+              <SheetTitle>SpeedWatch NZ</SheetTitle>
+            </SheetHeader>
+            <SidebarContent 
+              isMobile={isMobile}
+              selectedCamera={selectedCamera}
+              userLocation={location}
+              cameras={cameras}
+              onCameraSelect={handleCameraSelect}
+            />
           </SheetContent>
         </Sheet>
       ) : (
