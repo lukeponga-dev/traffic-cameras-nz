@@ -4,7 +4,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import {
   AlertCircle,
   Flag,
@@ -13,7 +13,7 @@ import {
   MapPin,
   MessageSquare,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useActionState } from "react";
 
 import { submitReport, type State } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -85,7 +85,7 @@ interface ReportDialogProps {
 export function ReportDialog({ onOpenChange, selectedCamera }: ReportDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
-  const [state, formAction] = useFormState<State, FormData>(submitReport, {
+  const [state, formAction] = useActionState<State, FormData>(submitReport, {
     status: "idle",
     message: "",
   });
