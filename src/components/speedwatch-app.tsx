@@ -8,7 +8,7 @@ import {
   ControlPosition,
 } from "@vis.gl/react-google-maps";
 import { Menu, LocateFixed } from "lucide-react";
-import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetTrigger
+  SheetTrigger,
 } from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -42,11 +42,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   
   const isMobile = useIsMobile();
   
-  const locationOptions = useMemo(() => ({
-    enableHighAccuracy: true,
-  }), []);
-
-  const location = useGeolocation(locationOptions);
+  const location = useGeolocation({ enableHighAccuracy: true });
 
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
@@ -60,13 +56,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         setMobileSheetOpen(false);
     }
   }
-
-  const center = useMemo(() => {
-    if (location.latitude && location.longitude) {
-      return { lat: location.latitude, lng: location.longitude };
-    }
-    return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
-  }, [location.latitude, location.longitude]);
 
   useEffect(() => {
     if (isFollowingUser && mapRef.current && location.latitude && location.longitude) {
@@ -83,8 +72,10 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
 
   const onMapInteraction = useCallback(() => {
-    setIsFollowingUser(false);
-  }, []);
+    if (isFollowingUser) {
+      setIsFollowingUser(false);
+    }
+  }, [isFollowingUser]);
 
   const handleRecenter = () => {
     if (location.latitude && location.longitude && mapRef.current) {
