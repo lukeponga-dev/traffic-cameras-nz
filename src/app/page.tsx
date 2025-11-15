@@ -1,3 +1,9 @@
+import { SpeedwatchApp } from '@/components/speedwatch-app';
+import { cameras } from '@/lib/data';
+import type { SpeedCamera } from '@/lib/types';
+
 export default function Home() {
-  return <></>;
+  const cameraData: SpeedCamera[] = cameras;
+  
+  return <SpeedwatchApp cameras={cameraData} />;
 }
