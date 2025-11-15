@@ -19,12 +19,12 @@ export function useGeolocation(options: PositionOptions = {}) {
   });
 
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
-        setLocation(l => ({ ...l, isAvailable: true }));
-    } else {
+    if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
         setLocation(l => ({ ...l, error: 'Geolocation is not supported by your browser.', isAvailable: false }));
         return;
     }
+
+    setLocation(l => ({ ...l, isAvailable: true }));
 
     const onSuccess = (position: GeolocationPosition) => {
       setLocation({
@@ -39,8 +39,9 @@ export function useGeolocation(options: PositionOptions = {}) {
       setLocation(l => ({ ...l, error: error.message }));
     };
     
-    navigator.geolocation.getCurrentPosition(onSuccess, onError, options);
+    const watchId = navigator.geolocation.watchPosition(onSuccess, onError, options);
 
+    return () => navigator.geolocation.clearWatch(watchId);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

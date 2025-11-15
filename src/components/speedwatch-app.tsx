@@ -6,10 +6,9 @@ import {
   Map,
   MapControl,
   ControlPosition,
-  Marker,
 } from "@vis.gl/react-google-maps";
-import { Camera, Menu, User } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import { Menu } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -20,76 +19,18 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Info, List } from 'lucide-react';
-import { Badge } from './ui/badge';
 
-import { Logo } from "./logo";
-import { ThemeToggle } from "./theme-toggle";
-import { ReportDialog } from "./report-dialog";
+import { SidebarContent } from "./sidebar-content";
 import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
-
+import { UserLocationMarker } from "./user-location-marker";
 
 interface SpeedwatchAppProps {
   cameras: CameraType[];
 }
-
-const SidebarContent = ({ 
-    selectedCamera,
-    userLocation,
-    cameras,
-    onCameraSelect
-  } : {
-    selectedCamera: CameraType | null;
-    userLocation: { latitude: number | null; longitude: number | null; };
-    cameras: CameraType[];
-    onCameraSelect: (camera: CameraType) => void;
-  }) => (
-    <>
-      <div className="p-4">
-        <Logo />
-      </div>
-      <Separator />
-      <Tabs defaultValue="info" className="flex-1 flex flex-col overflow-hidden">
-      <TabsList className="m-4">
-        <TabsTrigger value="info" className="w-full"><Info className="w-4 h-4 mr-2"/> Info</TabsTrigger>
-        <TabsTrigger value="cameras" className="w-full"><List className="w-4 h-4 mr-2"/> Cameras</TabsTrigger>
-      </TabsList>
-      <TabsContent value="info" className="flex-1 overflow-y-auto p-4 space-y-6">
-        <div className="text-center">
-            <p className="text-sm text-muted-foreground">Your Location</p>
-            <Badge variant="secondary">{userLocation.latitude && userLocation.longitude ? `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}` : 'Loading...'}</Badge>
-        </div>
-      </TabsContent>
-      <TabsContent value="cameras" className="flex-1 overflow-y-auto">
-        <ScrollArea className="h-full">
-            <div className="p-4 space-y-2">
-            {cameras.map(camera => (
-                <Button key={camera.id} variant={selectedCamera?.id === camera.id ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => onCameraSelect(camera)}>
-                    {camera.name}
-                </Button>
-            ))}
-            </div>
-        </ScrollArea>
-      </TabsContent>
-    </Tabs>
-      <Separator />
-      <div className="p-4 flex items-center justify-between">
-        <ReportDialog
-          selectedCamera={selectedCamera}
-          userLocation={userLocation}
-        />
-        <ThemeToggle />
-      </div>
-    </>
-  );
 
 export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(
@@ -139,20 +80,19 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             </SheetTrigger>
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
-            <SheetHeader className="p-4">
-                <SheetTitle className="sr-only">App Menu</SheetTitle>
-            </SheetHeader>
-            <SidebarContent 
-              selectedCamera={selectedCamera}
-              userLocation={location}
-              cameras={cameras}
-              onCameraSelect={handleCameraSelect}
-            />
+              <SidebarContent 
+                isMobile={isMobile}
+                selectedCamera={selectedCamera}
+                userLocation={location}
+                cameras={cameras}
+                onCameraSelect={handleCameraSelect}
+              />
           </SheetContent>
         </Sheet>
       ) : (
         <div className="w-[300px] border-r h-full shadow-md z-10 flex flex-col">
           <SidebarContent 
+            isMobile={isMobile}
             selectedCamera={selectedCamera}
             userLocation={location}
             cameras={cameras}
@@ -164,8 +104,8 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       <main className="flex-1 h-full relative">
         <Map
           key={JSON.stringify(center)} // Force re-render on center change
-          defaultCenter={center}
-          defaultZoom={13}
+          center={center}
+          zoom={13}
           gestureHandling={"greedy"}
           disableDefaultUI={true}
           mapId={"a3d7f7635c0cf699"}
@@ -178,15 +118,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
               onClick={() => handleMarkerClick(camera)}
             />
           ))}
-          {location.latitude && location.longitude && (
-            <Marker position={{ lat: location.latitude, lng: location.longitude }}>
-              <div className="relative">
-                <User className="h-6 w-6 text-white bg-blue-500 rounded-full p-1" />
-                <div className="absolute inset-0 rounded-full bg-blue-500 opacity-25 animate-ping"></div>
-              </div>
-            </Marker>
-          )}
-
+          <UserLocationMarker />
         </Map>
       </main>
 
