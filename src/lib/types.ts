@@ -1,4 +1,4 @@
-export type CameraType = "fixed" | "average";
+export type CameraType = "fixed" | "average" | "inactive";
 export type CameraStatus = "active" | "inactive";
 
 export interface SpeedCamera {
