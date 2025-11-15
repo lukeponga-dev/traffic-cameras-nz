@@ -1,3 +1,4 @@
+
 import { getCameras } from '@/lib/traffic-api';
 import type { Camera } from '@/lib/traffic-api';
 import { SpeedwatchAppLoader } from '@/components/speedwatch-app-loader';
