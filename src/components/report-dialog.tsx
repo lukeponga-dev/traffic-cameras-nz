@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -45,7 +46,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "./ui/input";
-import type { SpeedCamera } from "@/lib/types";
+import type { Camera } from "@/lib/traffic-api";
 
 const reportFormSchema = z.object({
   cameraId: z.string().optional(),
@@ -81,7 +82,7 @@ const SubmitButton = () => {
 
 interface ReportDialogProps {
   onOpenChange?: (open: boolean) => void;
-  selectedCamera: SpeedCamera | null;
+  selectedCamera: Camera | null;
   userLocation: { latitude: number | null, longitude: number | null };
 }
 

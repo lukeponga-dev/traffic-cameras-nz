@@ -13,4 +13,5 @@ export interface SpeedCamera {
   viewUrl: string;
   description: string;
   direction: string;
+  imageUrl: string;
 }
