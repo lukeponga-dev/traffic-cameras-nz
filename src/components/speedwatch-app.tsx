@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetTrigger,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -84,7 +85,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
             <SheetHeader className="p-4 border-b">
-              <SheetTitle>SpeedWatch NZ</SheetTitle>
+                <SheetTitle>SpeedWatch</SheetTitle>
             </SheetHeader>
             <SidebarContent 
               isMobile={isMobile}
