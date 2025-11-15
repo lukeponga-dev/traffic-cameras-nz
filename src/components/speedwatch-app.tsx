@@ -7,8 +7,8 @@ import {
   MapControl,
   ControlPosition,
 } from "@vis.gl/react-google-maps";
-import { Menu } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Menu, LocateFixed } from "lucide-react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -18,9 +18,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
-  SheetHeader,
-  SheetTitle,
+  SheetTrigger
 } from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -38,6 +36,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     null
   );
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [isFollowingUser, setIsFollowingUser] = useState(true);
+  
+  const mapRef = useRef<google.maps.Map | null>(null);
   
   const isMobile = useIsMobile();
   
@@ -49,24 +50,49 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
+    setIsFollowingUser(false);
   };
   
   const handleCameraSelect = (camera: CameraType) => {
     setSelectedCamera(camera);
+    setIsFollowingUser(false);
     if (isMobile) {
         setMobileSheetOpen(false);
     }
   }
 
   const center = useMemo(() => {
-    if (selectedCamera) {
-      return { lat: selectedCamera.latitude, lng: selectedCamera.longitude };
-    }
     if (location.latitude && location.longitude) {
       return { lat: location.latitude, lng: location.longitude };
     }
     return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
-  }, [selectedCamera, location.latitude, location.longitude]);
+  }, [location.latitude, location.longitude]);
+
+  useEffect(() => {
+    if (isFollowingUser && mapRef.current && location.latitude && location.longitude) {
+      mapRef.current.panTo({ lat: location.latitude, lng: location.longitude });
+    }
+  }, [isFollowingUser, location.latitude, location.longitude]);
+
+  useEffect(() => {
+    if (selectedCamera && mapRef.current) {
+        mapRef.current.panTo({ lat: selectedCamera.latitude, lng: selectedCamera.longitude });
+        mapRef.current.setZoom(14);
+    }
+  }, [selectedCamera]);
+
+
+  const onMapInteraction = useCallback(() => {
+    setIsFollowingUser(false);
+  }, []);
+
+  const handleRecenter = () => {
+    if (location.latitude && location.longitude && mapRef.current) {
+        mapRef.current.panTo({lat: location.latitude, lng: location.longitude});
+        mapRef.current.setZoom(14);
+        setIsFollowingUser(true);
+    }
+  }
 
   if (isMobile === undefined) {
     return <SpeedwatchAppSkeleton />;
@@ -84,9 +110,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             </SheetTrigger>
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
-            <SheetHeader className="p-4 border-b">
-                <SheetTitle>SpeedWatch</SheetTitle>
-            </SheetHeader>
             <SidebarContent 
               isMobile={isMobile}
               selectedCamera={selectedCamera}
@@ -110,13 +133,15 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
       <main className="flex-1 h-full relative">
         <Map
-          key={JSON.stringify(center)} // Force re-render on center change
-          center={center}
-          zoom={13}
+          defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
+          defaultZoom={6}
           gestureHandling={"greedy"}
           disableDefaultUI={true}
           mapId={"a3d7f7635c0cf699"}
           className="w-full h-full"
+          onDrag={onMapInteraction}
+          onZoomChanged={onMapInteraction}
+          ref={mapRef}
         >
           {cameras.map((camera) => (
             <CameraMarker
@@ -127,6 +152,11 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
           ))}
           <UserLocationMarker />
         </Map>
+        <MapControl position={ControlPosition.RIGHT_BOTTOM}>
+            <Button variant="outline" size="icon" className="m-4" onClick={handleRecenter} disabled={!location.latitude}>
+                <LocateFixed className="h-4 w-4"/>
+            </Button>
+        </MapControl>
       </main>
 
       <CameraDetailsSheet

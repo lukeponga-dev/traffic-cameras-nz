@@ -39,6 +39,9 @@ export function useGeolocation(options: PositionOptions = {}) {
       setLocation(l => ({ ...l, error: error.message }));
     };
     
+    // Get current position once
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, options);
+    
     const watchId = navigator.geolocation.watchPosition(onSuccess, onError, options);
 
     return () => navigator.geolocation.clearWatch(watchId);
