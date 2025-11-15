@@ -20,6 +20,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
@@ -71,7 +72,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     if (location.latitude && location.longitude) {
       return { lat: location.latitude, lng: location.longitude };
     }
-    return { lat: 51.5074, lng: -0.1278 }; // Default to London
+    return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
   }, [location]);
 
   const SidebarContent = () => (
@@ -150,6 +151,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             </SheetTrigger>
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px]">
+             <SheetHeader>
+               <SheetTitle className="sr-only">App Menu</SheetTitle>
+             </SheetHeader>
             <SidebarContent />
           </SheetContent>
         </Sheet>
@@ -163,7 +167,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         <Map
           key={JSON.stringify(center)} // Force re-render on center change
           defaultCenter={center}
-          defaultZoom={12}
+          defaultZoom={6}
           gestureHandling={"greedy"}
           disableDefaultUI={true}
           mapId={"a3d7f7635c0cf699"}
