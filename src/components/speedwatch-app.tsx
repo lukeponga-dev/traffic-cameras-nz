@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -47,7 +48,11 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const [showInactive, setShowInactive] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
-  const location = useGeolocation();
+  const locationOptions = useMemo(() => ({
+    enableHighAccuracy: true,
+  }), []);
+
+  const location = useGeolocation(locationOptions);
   const isMobile = useIsMobile();
 
   const filteredCameras = useMemo(() => {
@@ -137,6 +142,13 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
       {isMobile ? (
         <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+          <MapControl position={ControlPosition.TOP_LEFT}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="m-4">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+          </MapControl>
           <SheetContent side="left" className="p-0 w-[300px]">
             <SidebarContent />
           </SheetContent>
@@ -173,13 +185,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             </Marker>
           )}
 
-          {isMobile && (
-            <MapControl position={ControlPosition.TOP_LEFT}>
-               <Button variant="outline" size="icon" className="m-4" onClick={() => setMobileSheetOpen(true)}>
-                  <Menu className="h-4 w-4" />
-                </Button>
-            </MapControl>
-          )}
         </Map>
       </main>
 
