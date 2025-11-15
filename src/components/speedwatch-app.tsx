@@ -6,6 +6,7 @@ import {
   Map,
   MapControl,
   ControlPosition,
+  useMap,
 } from "@vis.gl/react-google-maps";
 import { Menu, LocateFixed, X } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
@@ -44,7 +45,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
   
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const map = useMap();
   
   const isMobile = useIsMobile();
   
@@ -65,9 +66,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   }
 
   const handlePlaceSelect = useCallback((place: google.maps.places.PlaceResult | null) => {
-    if (place?.geometry?.location && mapRef.current) {
-      mapRef.current.panTo(place.geometry.location);
-      mapRef.current.setZoom(14);
+    if (place?.geometry?.location && map) {
+      map.panTo(place.geometry.location);
+      map.setZoom(14);
       setIsFollowingUser(false);
       setDestination(place.geometry.location);
     } else {
@@ -76,25 +77,27 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     if (isMobile) {
       setMobileSheetOpen(false);
     }
-  }, [isMobile]);
+  }, [isMobile, map]);
 
   const handleGetDirections = (camera: CameraType) => {
-    setDestination(new google.maps.LatLng(camera.latitude, camera.longitude));
+     if (window.google) {
+        setDestination(new google.maps.LatLng(camera.latitude, camera.longitude));
+     }
     setSelectedCamera(null); // Close the details sheet
   }
 
   useEffect(() => {
-    if (isFollowingUser && mapRef.current && location.latitude && location.longitude) {
-      mapRef.current.panTo({ lat: location.latitude, lng: location.longitude });
+    if (isFollowingUser && map && location.latitude && location.longitude) {
+      map.panTo({ lat: location.latitude, lng: location.longitude });
     }
-  }, [isFollowingUser, location.latitude, location.longitude]);
+  }, [isFollowingUser, location.latitude, location.longitude, map]);
 
   useEffect(() => {
-    if (selectedCamera && mapRef.current) {
-        mapRef.current.panTo({ lat: selectedCamera.latitude, lng: selectedCamera.longitude });
-        mapRef.current.setZoom(14);
+    if (selectedCamera && map) {
+        map.panTo({ lat: selectedCamera.latitude, lng: selectedCamera.longitude });
+        map.setZoom(14);
     }
-  }, [selectedCamera]);
+  }, [selectedCamera, map]);
 
 
   const onMapInteraction = useCallback(() => {
@@ -104,9 +107,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   }, [isFollowingUser]);
 
   const handleRecenter = () => {
-    if (location.latitude && location.longitude && mapRef.current) {
-        mapRef.current.panTo({lat: location.latitude, lng: location.longitude});
-        mapRef.current.setZoom(14);
+    if (location.latitude && location.longitude && map) {
+        map.panTo({lat: location.latitude, lng: location.longitude});
+        map.setZoom(14);
         setIsFollowingUser(true);
     }
   }
@@ -116,9 +119,8 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   }
 
   const origin = useMemo(() => {
-    return location.latitude && location.longitude 
-      ? new google.maps.LatLng(location.latitude, location.longitude) 
-      : null;
+    if (!location.latitude || !location.longitude || !window.google) return null;
+    return new google.maps.LatLng(location.latitude, location.longitude);
   }, [location.latitude, location.longitude]);
 
 
@@ -126,9 +128,20 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     return <SpeedwatchAppSkeleton />;
   }
 
+  const sidebar = (
+    <SidebarContent 
+        cameras={cameras}
+        selectedCamera={selectedCamera}
+        userLocation={{ latitude: location.latitude, longitude: location.longitude }}
+        onCameraSelect={handleCameraSelect}
+        onPlaceSelect={handlePlaceSelect}
+        isMobile={isMobile}
+    />
+  );
+
   return (
-    <div className="h-screen grid grid-cols-12">
-      <div className="col-span-9">
+    <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-12">
+      <div className="md:col-span-8 lg:col-span-9 w-full h-full relative">
         <Map
           defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
           defaultZoom={6}
@@ -138,7 +151,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
           className="w-full h-full"
           onDrag={onMapInteraction}
           onZoomChanged={onMapInteraction}
-          ref={mapRef}
         >
           {cameras.map((camera) => (
             <CameraMarker
@@ -154,6 +166,20 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
                 destination={destination}
             />
           )}
+           <MapControl position={ControlPosition.TOP_LEFT}>
+            <div className="m-2 md:hidden">
+                 <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon">
+                            <Menu className="h-4 w-4" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
+                        {sidebar}
+                    </SheetContent>
+                </Sheet>
+            </div>
+          </MapControl>
         </Map>
         <MapControl position={ControlPosition.RIGHT_BOTTOM}>
             {destination && (
@@ -167,41 +193,8 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         </MapControl>
       </div>
 
-      <div className="col-span-3 border-l p-4 space-y-6 bg-gray-50 dark:bg-gray-900">
-        <h2 className="text-lg font-bold">Navigation</h2>
-        <Button className="w-full" onClick={handleRecenter} disabled={!location.latitude}>
-          Set my location
-        </Button>
-        <Button className="w-full" variant="destructive" onClick={clearDirections} disabled={!destination}>
-          Clear route
-        </Button>
-
-        <label className="block mt-4 text-sm">Mode</label>
-        <select className="w-full border rounded px-2 py-1">
-          <option>Driving</option>
-          <option>Cycling</option>
-          <option>Walking</option>
-        </select>
-
-        <div className="mt-4 text-sm">
-          <p>Estimated: 12.4 km • 15 min</p>
-        </div>
-
-        <h3 className="text-md font-semibold mt-6">Waypoints</h3>
-        <ul className="space-y-2">
-          <li className="flex justify-between items-center">
-            <span>Camera #1</span>
-            <Button variant="secondary" size="sm">Remove</Button>
-          </li>
-        </ul>
-
-        <h3 className="text-md font-semibold mt-6">Events</h3>
-        <div className="space-y-3">
-          <div className="p-2 border rounded">
-            <p className="font-semibold">Crash on SH1</p>
-            <Button size="sm">Route to event</Button>
-          </div>
-        </div>
+      <div className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-background">
+        {sidebar}
       </div>
 
       <CameraDetailsSheet
