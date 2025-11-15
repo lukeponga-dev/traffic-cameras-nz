@@ -2,14 +2,12 @@
 "use client";
 
 import * as React from "react";
-import { List, Flag } from "lucide-react";
+import { List, Flag, Settings, Bell } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
-  SheetClose,
 } from "@/components/ui/sheet";
 import { Button } from "./ui/button";
 import { ReportDialog } from "./report-dialog";
@@ -34,27 +32,37 @@ export function BottomNavigation({
   
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-10 md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-20 md:hidden">
         <div className="flex justify-around items-center h-full">
-          <Button variant="ghost" className="flex-1 flex-col h-full" onClick={onCameraListToggle}>
+          <Button variant="ghost" className="flex-1 flex-col h-full space-y-1" onClick={onCameraListToggle}>
             <List className="w-5 h-5" />
             <span className="text-xs">Cameras</span>
+          </Button>
+
+          <Button variant="ghost" className="flex-1 flex-col h-full space-y-1">
+            <Bell className="w-5 h-5" />
+            <span className="text-xs">Alerts</span>
           </Button>
 
           <ReportDialog 
             selectedCamera={selectedCamera} 
             userLocation={userLocation}
           >
-             <Button variant="ghost" className="flex-1 flex-col h-full">
+             <Button variant="ghost" className="flex-1 flex-col h-full space-y-1">
                 <Flag className="w-5 h-5" />
                 <span className="text-xs">Report</span>
             </Button>
           </ReportDialog>
+          
+          <Button variant="ghost" className="flex-1 flex-col h-full space-y-1">
+            <Settings className="w-5 h-5" />
+            <span className="text-xs">Settings</span>
+          </Button>
         </div>
       </div>
       
       <Sheet open={isCameraDrawerOpen} onOpenChange={onCameraListToggle}>
-        <SheetContent side="bottom" className="h-[80dvh] flex flex-col p-0">
+        <SheetContent side="bottom" className="h-[80dvh] flex flex-col p-0 z-30">
             <SheetHeader className="p-4">
                 <SheetTitle>Cameras</SheetTitle>
             </SheetHeader>

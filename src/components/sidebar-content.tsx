@@ -55,7 +55,7 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
         const regionCameras = groupedCameras[region].filter(
           (camera) =>
             camera.name.toLowerCase().includes(lowercasedFilter) ||
-            camera.description.toLowerCase().includes(lowercasedFilter)
+            (camera.description && camera.description.toLowerCase().includes(lowercasedFilter))
         );
         if (regionCameras.length > 0) {
           filtered[region] = regionCameras;
@@ -71,38 +71,40 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
             const region = cameras.find(c => c.id === selectedCamera.id)?.region;
             if(region) return [region];
         }
+        // If not searching, open the first region by default
+        if(!searchTerm && regions.length > 0) {
+            return [regions[0]];
+        }
         return [];
-    }, [selectedCamera, cameras]);
+    }, [selectedCamera, cameras, searchTerm, regions]);
 
     const content = (
         <>
-            <div className="p-4 border-b">
-                <div className='space-y-2'>
-                    <PlaceAutocomplete onPlaceSelect={onPlaceSelect} />
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                        <Input
-                            placeholder="Search cameras..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9"
-                        />
-                        {searchTerm && (
-                            <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                            onClick={() => setSearchTerm('')}
-                            aria-label="Clear search"
-                            >
-                            <X className="h-4 w-4" aria-hidden="true" />
-                            </Button>
-                        )}
-                    </div>
+            <div className="p-4 border-b space-y-4">
+                <PlaceAutocomplete onPlaceSelect={onPlaceSelect} />
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <Input
+                        placeholder="Filter cameras..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9"
+                    />
+                    {searchTerm && (
+                        <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                        onClick={() => setSearchTerm('')}
+                        aria-label="Clear search"
+                        >
+                        <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                    )}
                 </div>
             </div>
             <ScrollArea className="flex-1">
-                <Accordion type="multiple" className="px-4" defaultValue={defaultOpen}>
+                <Accordion type="multiple" className="px-4" defaultValue={defaultOpen} key={searchTerm}>
                 {regions.map((region) => (
                     <AccordionItem value={region} key={region}>
                     <AccordionTrigger>{region} ({filteredCameras[region].length})</AccordionTrigger>
@@ -114,7 +116,7 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
                             variant="ghost"
                             onClick={() => onCameraSelect(camera)}
                             className={cn(
-                                "flex justify-start items-center gap-2 w-full h-auto py-2 px-4 rounded-none",
+                                "flex justify-start items-center gap-2 w-full h-auto py-3 px-4 rounded-none",
                                 selectedCamera?.id === camera.id && "bg-accent text-accent-foreground"
                             )}
                             >

@@ -3,22 +3,6 @@
       
       const withPWA = require('next-pwa')({
         dest: 'public',
-        runtimeCaching: [
-          {
-            urlPattern: '/api/cameras',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'camera-data-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 3600, // 1 hour
-              },
-            },
-          },
-        ],
-        fallbacks: {
-          document: '/offline.html',
-        }
       });
 
 

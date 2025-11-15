@@ -8,7 +8,7 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { LocateFixed, X } from "lucide-react";
+import { LocateFixed, X, Menu } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
@@ -16,6 +16,13 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
 import { CameraMarker } from "./camera-marker";
@@ -25,7 +32,6 @@ import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
 import { Logo } from "@/components/logo";
 import { BottomNavigation } from "./bottom-navigation";
-
 
 interface SpeedwatchAppProps {
   cameras: CameraType[];
@@ -64,7 +70,13 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       map.panTo(place.geometry.location);
       map.setZoom(14);
       setIsFollowingUser(false);
-      setDestination(place.geometry.location);
+      
+      const newDestination = new window.google.maps.LatLng(
+        place.geometry.location.lat(),
+        place.geometry.location.lng()
+      );
+      setDestination(newDestination);
+
     } else {
         setDestination(null);
     }
@@ -114,7 +126,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
   const origin = useMemo(() => {
     if (!location.latitude || !location.longitude || !window.google) return null;
-    return new google.maps.LatLng(location.latitude, location.longitude);
+    return new window.google.maps.LatLng(location.latitude, location.longitude);
   }, [location.latitude, location.longitude]);
 
 
@@ -134,7 +146,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   );
 
   return (
-    <div className="h-dvh w-screen grid grid-cols-1 md:grid-cols-12 relative">
+    <div className="h-dvh w-screen grid grid-cols-1 md:grid-cols-12 relative overflow-hidden">
       <div className="md:col-span-8 lg:col-span-9 w-full h-full relative">
         <Map
           defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
@@ -161,20 +173,20 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             />
           )}
            <MapControl position={ControlPosition.TOP_LEFT}>
-            <div className="m-2 md:hidden">
+            <div className="m-4 md:hidden">
                  <Logo />
             </div>
           </MapControl>
         </Map>
         <MapControl position={ControlPosition.RIGHT_BOTTOM}>
-            <div className="flex flex-col items-end m-2">
+            <div className="flex flex-col items-end m-4">
                 {destination && (
-                    <Button variant="outline" size="icon" className="mb-2 shadow-md" onClick={clearDirections} aria-label="Clear directions">
-                        <X className="h-4 w-4"/>
+                    <Button variant="outline" size="icon" className="mb-2 shadow-lg rounded-full" onClick={clearDirections} aria-label="Clear directions">
+                        <X className="h-5 w-5"/>
                     </Button>
                 )}
-                <Button variant="outline" size="icon" className="shadow-md" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
-                    <LocateFixed className="h-4 w-4"/>
+                <Button variant="outline" size="icon" className="shadow-lg rounded-full" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
+                    <LocateFixed className="h-5 w-5"/>
                 </Button>
             </div>
         </MapControl>
@@ -190,7 +202,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             {sidebar}
         </BottomNavigation>
       ) : (
-        <aside className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-card">
+        <aside className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-card shadow-lg">
           <div className="p-4 border-b">
               <Logo />
           </div>

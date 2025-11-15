@@ -28,9 +28,9 @@ export function CameraDetailsSheet({
 }: CameraDetailsSheetProps) {
   return (
     <Sheet open={!!camera} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md p-0">
+      <SheetContent className="w-full sm:max-w-md p-0 flex flex-col" side={camera ? "bottom" : "right"}>
         {camera && (
-          <div className="flex flex-col h-full">
+          <>
             <div className="relative h-48 w-full">
                 {camera.viewUrl ? (
                     <Image
@@ -39,20 +39,23 @@ export function CameraDetailsSheet({
                         data-ai-hint="road street"
                         fill
                         className="object-cover"
+                        sizes="100vw"
                     />
                 ) : (
                     <div className="w-full h-full bg-muted flex items-center justify-center">
                         <MapPin className="w-12 h-12 text-muted-foreground"/>
                     </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
             </div>
 
-            <SheetHeader className="p-6 text-left -mt-12 z-10">
+            <SheetHeader className="p-6 text-left -mt-16 z-10">
               <SheetTitle className="text-2xl font-bold">{camera.name}</SheetTitle>
-              <SheetDescription>{camera.description}</SheetDescription>
+              {camera.description && (
+                <SheetDescription>{camera.description}</SheetDescription>
+              )}
             </SheetHeader>
-            <div className="flex-1 overflow-y-auto p-6 pt-0">
+            <div className="flex-1 overflow-y-auto px-6 pb-6">
               <div className="grid grid-cols-2 gap-4 text-sm mt-4">
                 <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="w-5 h-5 text-primary"/>
@@ -72,13 +75,13 @@ export function CameraDetailsSheet({
                 
               </div>
             </div>
-             <SheetFooter className="p-4 border-t">
+             <SheetFooter className="p-4 border-t mt-auto">
                 <Button onClick={() => onGetDirections(camera)} className="w-full">
                     <Route className="mr-2 h-4 w-4" />
                     Get Directions
                 </Button>
             </SheetFooter>
-          </div>
+          </>
         )}
       </SheetContent>
     </Sheet>

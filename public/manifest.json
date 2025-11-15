@@ -1,11 +1,10 @@
 {
     "name": "SpeedWatch",
     "short_name": "SpeedWatch",
-    "description": "Real-time traffic camera monitoring",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#000000",
+    "background_color": "#F0F2F5",
+    "theme_color": "#3F51B5",
     "icons": [
         {
             "src": "/icons/icon-192x192.png",
