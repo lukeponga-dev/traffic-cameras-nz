@@ -5,3 +5,17 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+
+build:
+  # The command to build your app. This is typically the same command
+  # you use to build your app locally.
+  command: "npm run build"
+
+run:
+  # The command to start your app. This is typically the same command
+  # you use to start your app locally.
+  command: "npm run start"
+
+env:
+  - variable: "NODE_ENV"
+    value: "production"

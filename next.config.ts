@@ -1,5 +1,27 @@
-import type {NextConfig} from 'next';
+
+      import type {NextConfig} from 'next';
       
+      const withPWA = require('next-pwa')({
+        dest: 'public',
+        runtimeCaching: [
+          {
+            urlPattern: '/api/cameras',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'camera-data-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 3600, // 1 hour
+              },
+            },
+          },
+        ],
+        fallbacks: {
+          document: '/offline.html',
+        }
+      });
+
+
       const nextConfig: NextConfig = {
         /* config options here */
         devIndicators: {
@@ -41,4 +63,4 @@ import type {NextConfig} from 'next';
         },
       };
       
-      export default nextConfig;
+      export default withPWA(nextConfig);
