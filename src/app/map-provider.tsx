@@ -34,5 +34,5 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  return <APIProvider apiKey={apiKey}>{children}</APIProvider>;
+  return <APIProvider apiKey={apiKey} libraries={['places']}>{children}</APIProvider>;
 }

@@ -19,6 +19,8 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetHeader,
+  SheetTitle
 } from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -56,6 +58,17 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         setMobileSheetOpen(false);
     }
   }
+
+  const handlePlaceSelect = useCallback((place: google.maps.places.PlaceResult | null) => {
+    if (place?.geometry?.location && mapRef.current) {
+      mapRef.current.panTo(place.geometry.location);
+      mapRef.current.setZoom(14);
+      setIsFollowingUser(false);
+    }
+    if (isMobile) {
+      setMobileSheetOpen(false);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (isFollowingUser && mapRef.current && location.latitude && location.longitude) {
@@ -101,12 +114,16 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             </SheetTrigger>
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
+          <SheetHeader className="p-4 border-b">
+              <SheetTitle>SpeedWatch NZ</SheetTitle>
+          </SheetHeader>
             <SidebarContent 
               isMobile={isMobile}
               selectedCamera={selectedCamera}
               userLocation={location}
               cameras={cameras}
               onCameraSelect={handleCameraSelect}
+              onPlaceSelect={handlePlaceSelect}
             />
           </SheetContent>
         </Sheet>
@@ -118,6 +135,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             userLocation={location}
             cameras={cameras}
             onCameraSelect={handleCameraSelect}
+            onPlaceSelect={handlePlaceSelect}
           />
         </div>
       )}

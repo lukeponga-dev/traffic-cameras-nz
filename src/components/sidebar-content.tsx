@@ -15,11 +15,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 import { ReportDialog } from '@/components/report-dialog';
 import { cn } from '@/lib/utils';
+import { PlaceAutocomplete } from './place-autocomplete';
 
 
 interface SidebarContentProps {
@@ -27,11 +27,12 @@ interface SidebarContentProps {
     selectedCamera: CameraType | null;
     userLocation: { latitude: number | null, longitude: number | null };
     onCameraSelect: (camera: CameraType) => void;
+    onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
     isMobile: boolean;
 }
 
 
-export function SidebarContent({ cameras, selectedCamera, userLocation, onCameraSelect, isMobile }: SidebarContentProps) {
+export function SidebarContent({ cameras, selectedCamera, userLocation, onCameraSelect, onPlaceSelect, isMobile }: SidebarContentProps) {
     const [searchTerm, setSearchTerm] = React.useState('');
   
     const groupedCameras = React.useMemo(() => {
@@ -77,32 +78,28 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
     const content = (
         <>
             <div className="p-4 border-b">
-                {isMobile ? (
-                    <SheetHeader>
-                        <SheetTitle>SpeedWatch NZ</SheetTitle>
-                    </SheetHeader>
-                ) : (
-                    <Logo />
-                )}
-
-                <div className="relative mt-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                    placeholder="Search cameras..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
-                />
-                {searchTerm && (
-                    <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                    onClick={() => setSearchTerm('')}
-                    >
-                    <X className="h-4 w-4" />
-                    </Button>
-                )}
+                {!isMobile && <Logo />}
+                <div className='mt-4 space-y-2'>
+                    <PlaceAutocomplete onPlaceSelect={onPlaceSelect} />
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search cameras..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9"
+                        />
+                        {searchTerm && (
+                            <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                            onClick={() => setSearchTerm('')}
+                            >
+                            <X className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
             <ScrollArea className="flex-1">
