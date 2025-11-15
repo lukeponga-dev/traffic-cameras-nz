@@ -10,7 +10,7 @@ export function useIsMobile() {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
 
-    checkIsMobile(); // Initial check
+    checkIsMobile(); // Initial check on mount
     window.addEventListener("resize", checkIsMobile);
 
     return () => {
