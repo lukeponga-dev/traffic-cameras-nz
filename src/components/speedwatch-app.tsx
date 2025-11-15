@@ -7,7 +7,7 @@ import {
   MapControl,
   ControlPosition,
 } from "@vis.gl/react-google-maps";
-import { Menu, LocateFixed } from "lucide-react";
+import { Menu, LocateFixed, X } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
@@ -28,6 +28,7 @@ import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
+import { Directions } from "./directions";
 
 interface SpeedwatchAppProps {
   cameras: CameraType[];
@@ -39,6 +40,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   );
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [isFollowingUser, setIsFollowingUser] = useState(true);
+  const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
   
   const mapRef = useRef<google.maps.Map | null>(null);
   
@@ -49,6 +51,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
     setIsFollowingUser(false);
+    setDestination(null); // Clear route when a camera is clicked
   };
   
   const handleCameraSelect = (camera: CameraType) => {
@@ -57,6 +60,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     if (isMobile) {
         setMobileSheetOpen(false);
     }
+    setDestination(null); // Clear route
   }
 
   const handlePlaceSelect = useCallback((place: google.maps.places.PlaceResult | null) => {
@@ -64,6 +68,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       mapRef.current.panTo(place.geometry.location);
       mapRef.current.setZoom(14);
       setIsFollowingUser(false);
+      setDestination(place.geometry.location);
+    } else {
+        setDestination(null);
     }
     if (isMobile) {
       setMobileSheetOpen(false);
@@ -98,10 +105,18 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     }
   }
 
+  const clearDirections = () => {
+    setDestination(null);
+  }
+
   if (isMobile === undefined) {
     return <SpeedwatchAppSkeleton />;
   }
   
+  const origin = location.latitude && location.longitude 
+    ? new google.maps.LatLng(location.latitude, location.longitude) 
+    : null;
+
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
       {isMobile ? (
@@ -160,9 +175,20 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             />
           ))}
           <UserLocationMarker />
+          {origin && destination && (
+            <Directions
+                origin={origin}
+                destination={destination}
+            />
+          )}
         </Map>
         <MapControl position={ControlPosition.RIGHT_BOTTOM}>
-            <Button variant="outline" size="icon" className="m-4" onClick={handleRecenter} disabled={!location.latitude}>
+            {destination && (
+                 <Button variant="outline" size="icon" className="m-4 mb-2" onClick={clearDirections}>
+                    <X className="h-4 w-4"/>
+                </Button>
+            )}
+            <Button variant="outline" size="icon" className="m-4 mt-0" onClick={handleRecenter} disabled={!location.latitude}>
                 <LocateFixed className="h-4 w-4"/>
             </Button>
         </MapControl>
