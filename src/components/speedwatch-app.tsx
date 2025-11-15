@@ -34,6 +34,8 @@ import { ReportDialog } from "./report-dialog";
 import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { Badge } from "./ui/badge";
+import { Loader2 } from "lucide-react";
+
 
 type CameraTypeFilter = "all" | CameraType;
 
@@ -41,48 +43,29 @@ interface SpeedwatchAppProps {
   cameras: SpeedCamera[];
 }
 
-export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
-  const [selectedCamera, setSelectedCamera] = useState<SpeedCamera | null>(
-    null
-  );
-  const [typeFilter, setTypeFilter] = useState<CameraTypeFilter>("all");
-  const [showInactive, setShowInactive] = useState(false);
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
-  
-  const isMobile = useIsMobile();
-  
-  // Prevent server-side rendering of components that use useIsMobile
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const locationOptions = useMemo(() => ({
-    enableHighAccuracy: true,
-  }), []);
-
-  const location = useGeolocation(locationOptions);
-
-  const filteredCameras = useMemo(() => {
-    return cameras.filter((camera) => {
-      const typeMatch = typeFilter === "all" || camera.cameraType === typeFilter;
-      const statusMatch = showInactive || camera.status === "Active";
-      return typeMatch && statusMatch;
-    });
-  }, [cameras, typeFilter, showInactive]);
-
-  const handleMarkerClick = (camera: SpeedCamera) => {
-    setSelectedCamera(camera);
-  };
-
-  const center = useMemo(() => {
-    if (location.latitude && location.longitude) {
-      return { lat: location.latitude, lng: location.longitude };
-    }
-    return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
-  }, [location]);
-
-  const SidebarContent = () => (
+const SidebarContent = ({ 
+    typeFilter, 
+    setTypeFilter, 
+    showInactive, 
+    setShowInactive, 
+    filteredCamerasCount, 
+    totalCamerasCount,
+    isMobile,
+    setMobileSheetOpen,
+    selectedCamera,
+    location
+  } : {
+    typeFilter: CameraTypeFilter;
+    setTypeFilter: (filter: CameraTypeFilter) => void;
+    showInactive: boolean;
+    setShowInactive: (show: boolean) => void;
+    filteredCamerasCount: number;
+    totalCamerasCount: number;
+    isMobile: boolean;
+    setMobileSheetOpen: (open: boolean) => void;
+    selectedCamera: SpeedCamera | null;
+    location: { latitude: number | null; longitude: number | null; }
+  }) => (
     <div className="flex flex-col h-full bg-card">
        <SheetHeader className="p-0">
         <Logo />
@@ -139,7 +122,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         </div>
         <Separator />
          <div className="text-center">
-            <Badge variant="secondary">{filteredCameras.length} of {cameras.length} cameras shown</Badge>
+            <Badge variant="secondary">{filteredCamerasCount} of {totalCamerasCount} cameras shown</Badge>
         </div>
       </div>
       <Separator />
@@ -153,6 +136,47 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       </div>
     </div>
   );
+
+export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
+  const [selectedCamera, setSelectedCamera] = useState<SpeedCamera | null>(
+    null
+  );
+  const [typeFilter, setTypeFilter] = useState<CameraTypeFilter>("all");
+  const [showInactive, setShowInactive] = useState(false);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  
+  const isMobile = useIsMobile();
+  
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const locationOptions = useMemo(() => ({
+    enableHighAccuracy: true,
+  }), []);
+
+  const location = useGeolocation(locationOptions);
+
+  const filteredCameras = useMemo(() => {
+    return cameras.filter((camera) => {
+      const typeMatch = typeFilter === "all" || camera.cameraType === typeFilter;
+      const statusMatch = showInactive || camera.status === "Active";
+      return typeMatch && statusMatch;
+    });
+  }, [cameras, typeFilter, showInactive]);
+
+  const handleMarkerClick = (camera: SpeedCamera) => {
+    setSelectedCamera(camera);
+  };
+
+  const center = useMemo(() => {
+    if (location.latitude && location.longitude) {
+      return { lat: location.latitude, lng: location.longitude };
+    }
+    return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
+  }, [location]);
+
 
   if (!isClient) {
     return (
@@ -171,19 +195,41 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
           <SheetTrigger asChild>
             <MapControl position={ControlPosition.TOP_LEFT}>
-              <Button variant="outline" size="icon" className="m-4">
-                <Menu className="h-4 w-4" />
-              </Button>
+                <Button variant="outline" size="icon" className="m-4">
+                  <Menu className="h-4 w-4" />
+                </Button>
             </MapControl>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-[300px]">
-            <SidebarContent />
+            <SidebarContent 
+              typeFilter={typeFilter}
+              setTypeFilter={setTypeFilter}
+              showInactive={showInactive}
+              setShowInactive={setShowInactive}
+              filteredCamerasCount={filteredCameras.length}
+              totalCamerasCount={cameras.length}
+              isMobile={isMobile}
+              setMobileSheetOpen={setMobileSheetOpen}
+              selectedCamera={selectedCamera}
+              location={location}
+            />
           </SheetContent>
         </Sheet>
       </div>
 
       <div className="hidden md:block w-[300px] border-r h-full shadow-md z-10">
-        <SidebarContent />
+        <SidebarContent 
+          typeFilter={typeFilter}
+          setTypeFilter={setTypeFilter}
+          showInactive={showInactive}
+          setShowInactive={setShowInactive}
+          filteredCamerasCount={filteredCameras.length}
+          totalCamerasCount={cameras.length}
+          isMobile={isMobile}
+          setMobileSheetOpen={setMobileSheetOpen}
+          selectedCamera={selectedCamera}
+          location={location}
+        />
       </div>
 
       <main className="flex-1 h-full relative">
@@ -224,5 +270,3 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     </div>
   );
 }
-
-import { Loader2 } from "lucide-react";
