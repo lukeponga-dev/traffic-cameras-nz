@@ -9,7 +9,7 @@ import {
   useMap,
 } from "@vis.gl/react-google-maps";
 import { Menu, LocateFixed, X } from "lucide-react";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -30,7 +30,7 @@ import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
-import { PlaceAutocomplete } from "./place-autocomplete";
+import { Logo } from "@/components/logo";
 
 
 interface SpeedwatchAppProps {
@@ -70,7 +70,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       map.panTo(place.geometry.location);
       map.setZoom(14);
       setIsFollowingUser(false);
-      setDestination(place.geometry.location);
+      if (window.google) {
+        setDestination(place.geometry.location);
+      }
     } else {
         setDestination(null);
     }
