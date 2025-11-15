@@ -7,20 +7,24 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
 } from "@/components/ui/sheet";
 import type { Camera } from "@/lib/traffic-api";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Compass } from "lucide-react";
+import { MapPin, Compass, Route } from "lucide-react";
 import Image from 'next/image';
+import { Button } from "./ui/button";
 
 interface CameraDetailsSheetProps {
   camera: Camera | null;
   onOpenChange: (open: boolean) => void;
+  onGetDirections: (camera: Camera) => void;
 }
 
 export function CameraDetailsSheet({
   camera,
   onOpenChange,
+  onGetDirections,
 }: CameraDetailsSheetProps) {
   return (
     <Sheet open={!!camera} onOpenChange={onOpenChange}>
@@ -38,7 +42,7 @@ export function CameraDetailsSheet({
                     />
                 ) : (
                     <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Camera className="w-12 h-12 text-muted-foreground"/>
+                        <MapPin className="w-12 h-12 text-muted-foreground"/>
                     </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
@@ -70,6 +74,12 @@ export function CameraDetailsSheet({
                 </div>
               </div>
             </SheetDescription>
+             <SheetFooter className="p-4 border-t">
+                <Button onClick={() => onGetDirections(camera)} className="w-full">
+                    <Route className="mr-2 h-4 w-4" />
+                    Get Directions
+                </Button>
+            </SheetFooter>
           </div>
         )}
       </SheetContent>

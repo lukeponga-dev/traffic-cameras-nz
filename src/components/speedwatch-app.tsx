@@ -29,6 +29,8 @@ import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
+import { PlaceAutocomplete } from "./place-autocomplete";
+
 
 interface SpeedwatchAppProps {
   cameras: CameraType[];
@@ -51,7 +53,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
     setIsFollowingUser(false);
-    setDestination(null); // Clear route when a camera is clicked
   };
   
   const handleCameraSelect = (camera: CameraType) => {
@@ -60,7 +61,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     if (isMobile) {
         setMobileSheetOpen(false);
     }
-    setDestination(null); // Clear route
+    setDestination(null); // Clear route when a new camera is selected from the list
   }
 
   const handlePlaceSelect = useCallback((place: google.maps.places.PlaceResult | null) => {
@@ -76,6 +77,11 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       setMobileSheetOpen(false);
     }
   }, [isMobile]);
+
+  const handleGetDirections = (camera: CameraType) => {
+    setDestination(new google.maps.LatLng(camera.latitude, camera.longitude));
+    setSelectedCamera(null); // Close the details sheet
+  }
 
   useEffect(() => {
     if (isFollowingUser && mapRef.current && location.latitude && location.longitude) {
@@ -199,6 +205,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         onOpenChange={(isOpen) => {
           if (!isOpen) setSelectedCamera(null);
         }}
+        onGetDirections={handleGetDirections}
       />
     </div>
   );
