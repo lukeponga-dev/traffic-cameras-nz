@@ -21,7 +21,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger
+  SheetTrigger,
 } from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -175,6 +175,11 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
+                        <SheetHeader className="p-4 border-b">
+                            <SheetTitle>
+                                <Logo />
+                            </SheetTitle>
+                        </SheetHeader>
                         {sidebar}
                     </SheetContent>
                 </Sheet>
@@ -194,6 +199,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
       </div>
 
       <div className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-background">
+        <div className="p-4 border-b">
+            <Logo />
+        </div>
         {sidebar}
       </div>
 

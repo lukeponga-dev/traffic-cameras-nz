@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { Logo } from '@/components/logo';
 import { ReportDialog } from '@/components/report-dialog';
 import { cn } from '@/lib/utils';
 import { PlaceAutocomplete } from './place-autocomplete';
@@ -78,8 +77,7 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
     const content = (
         <>
             <div className="p-4 border-b">
-                {!isMobile && <Logo />}
-                <div className='mt-4 space-y-2'>
+                <div className='space-y-2'>
                     <PlaceAutocomplete onPlaceSelect={onPlaceSelect} />
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
