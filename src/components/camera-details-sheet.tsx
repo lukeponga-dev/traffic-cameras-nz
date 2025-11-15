@@ -50,30 +50,28 @@ export function CameraDetailsSheet({
 
             <SheetHeader className="p-6 text-left -mt-12 z-10">
               <SheetTitle className="text-2xl font-bold">{camera.name}</SheetTitle>
+              <SheetDescription>{camera.description}</SheetDescription>
             </SheetHeader>
-            <SheetDescription asChild>
-              <div className="flex-1 overflow-y-auto p-6 pt-0">
-                  <p className="text-sm text-muted-foreground mb-6">{camera.description}</p>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-5 h-5 text-primary"/>
-                      <span>Coordinates</span>
-                  </div>
-                  <div className="font-mono text-xs text-right">
-                      {camera.latitude.toFixed(4)}, <br/> {camera.longitude.toFixed(4)}
-                  </div>
-
-                  <div className="col-span-2"><Separator/></div>
-                  
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                      <Compass className="w-5 h-5 text-primary"/>
-                      <span>Direction</span>
-                  </div>
-                  <div className="font-semibold text-right">{camera.direction}</div>
-                  
+            <div className="flex-1 overflow-y-auto p-6 pt-0">
+              <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="w-5 h-5 text-primary"/>
+                    <span>Coordinates</span>
                 </div>
+                <div className="font-mono text-xs text-right">
+                    {camera.latitude.toFixed(4)}, <br/> {camera.longitude.toFixed(4)}
+                </div>
+
+                <div className="col-span-2"><Separator/></div>
+                
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Compass className="w-5 h-5 text-primary"/>
+                    <span>Direction</span>
+                </div>
+                <div className="font-semibold text-right">{camera.direction}</div>
+                
               </div>
-            </SheetDescription>
+            </div>
              <SheetFooter className="p-4 border-t">
                 <Button onClick={() => onGetDirections(camera)} className="w-full">
                     <Route className="mr-2 h-4 w-4" />

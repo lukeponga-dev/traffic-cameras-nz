@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -172,7 +173,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             <div className="m-2 md:hidden">
                  <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
                     <SheetTrigger asChild>
-                        <Button variant="outline" size="icon">
+                        <Button variant="outline" size="icon" aria-label="Open navigation menu">
                             <Menu className="h-4 w-4" />
                         </Button>
                     </SheetTrigger>
@@ -181,6 +182,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
                             <SheetTitle>
                                 <Logo />
                             </SheetTitle>
+                            <SheetDescription className="sr-only">
+                                Navigate and control the map
+                            </SheetDescription>
                         </SheetHeader>
                         {sidebar}
                     </SheetContent>
@@ -190,11 +194,11 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         </Map>
         <MapControl position={ControlPosition.RIGHT_BOTTOM}>
             {destination && (
-                 <Button variant="outline" size="icon" className="m-4 mb-2" onClick={clearDirections}>
+                 <Button variant="outline" size="icon" className="m-4 mb-2" onClick={clearDirections} aria-label="Clear directions">
                     <X className="h-4 w-4"/>
                 </Button>
             )}
-            <Button variant="outline" size="icon" className="m-4 mt-0" onClick={handleRecenter} disabled={!location.latitude}>
+            <Button variant="outline" size="icon" className="m-4 mt-0" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
                 <LocateFixed className="h-4 w-4"/>
             </Button>
         </MapControl>

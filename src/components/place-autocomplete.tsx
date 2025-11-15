@@ -1,77 +1,73 @@
 
-'use client';
+"use client";
 
-import { useRef, useEffect, useState } from 'react';
-import { useMap } from '@vis.gl/react-google-maps';
-import { Input } from '@/components/ui/input';
-import { Search, X } from 'lucide-react';
-import { Button } from './ui/button';
+import { useEffect, useRef } from "react";
+import { useMap } from "@vis.gl/react-google-maps";
+import { Search } from "lucide-react";
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "gmp-place-autocomplete": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+    }
+  }
+}
 
 interface PlaceAutocompleteProps {
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
 }
 
 export function PlaceAutocomplete({ onPlaceSelect }: PlaceAutocompleteProps) {
-  const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
   const map = useMap();
+  const autocompleteRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!map || !inputRef.current) return;
+    if (!autocompleteRef.current || !inputRef.current || !map) return;
 
-    const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-        fields: ['geometry', 'name', 'formatted_address'],
-        types: ['address'],
-        componentRestrictions: { country: 'nz' },
-    });
+    const autocomplete = autocompleteRef.current;
+    const input = inputRef.current;
 
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      setInputValue(place.formatted_address || place.name || '');
+    autocomplete.append(input);
+    
+    // Bind the map to the autocomplete element
+    // @ts-ignore
+    autocomplete.map = map;
+
+    const handlePlaceChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const place = customEvent.detail.place;
       onPlaceSelect(place);
-    });
 
-    return () => {
-      // Clean up the autocomplete instance
-      if (window.google) {
-        const pacContainers = document.querySelectorAll('.pac-container');
-        pacContainers.forEach(container => container.remove());
-        // It's tricky to properly remove listeners from google maps autocomplete
-        // this is a workaround to prevent memory leaks
-        const clone = inputRef.current?.cloneNode(true) as HTMLInputElement;
-        inputRef.current?.parentNode?.replaceChild(clone, inputRef.current);
+      if (place && place.formatted_address) {
+        input.value = place.formatted_address;
       }
     };
+
+    autocomplete.addEventListener("gmp-placechange", handlePlaceChange);
+
+    return () => {
+      autocomplete.removeEventListener("gmp-placechange", handlePlaceChange);
+    };
   }, [map, onPlaceSelect]);
-  
-  const handleClear = () => {
-    setInputValue('');
-    onPlaceSelect(null);
-    if(inputRef.current) {
-        inputRef.current.focus();
-    }
-  }
 
   return (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-      <Input
-        ref={inputRef}
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder="Search destination..."
-        className="pl-9"
-      />
-      {inputValue && (
-          <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-          onClick={handleClear}
-          >
-          <X className="h-4 w-4" />
-          </Button>
-      )}
+    <div className="relative flex items-center">
+      <Search className="absolute left-3 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+      <gmp-place-autocomplete
+        ref={autocompleteRef}
+        country-codes="nz"
+        place-fields="geometry,name,formatted_address"
+      >
+        <input
+            ref={inputRef}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9"
+            placeholder="Search for a place"
+        />
+      </gmp-place-autocomplete>
     </div>
   );
 }

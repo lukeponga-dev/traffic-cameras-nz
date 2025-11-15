@@ -74,7 +74,7 @@ const SubmitButton = () => {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
       Submit Report
     </Button>
   );
@@ -141,8 +141,8 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: Rep
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Flag className="mr-2 h-4 w-4" />
+        <Button variant="outline" aria-label={selectedCamera ? `Report an issue with ${selectedCamera.name}`: "Report a data issue"}>
+          <Flag className="mr-2 h-4 w-4" aria-hidden="true" />
           Report Issue
         </Button>
       </DialogTrigger>
@@ -207,17 +207,17 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: Rep
                     <SelectContent>
                       <SelectItem value="incorrect_speed_limit">
                         <div className="flex items-center gap-2">
-                          <Gauge className="w-4 h-4" /> Incorrect Speed Limit
+                          <Gauge className="w-4 h-4" aria-hidden="true" /> Incorrect Speed Limit
                         </div>
                       </SelectItem>
                       <SelectItem value="incorrect_location">
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4" /> Incorrect Location
+                          <MapPin className="w-4 h-4" aria-hidden="true" /> Incorrect Location
                         </div>
                       </SelectItem>
                       <SelectItem value="other">
                         <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4" /> Other Issue
+                          <AlertCircle className="w-4 h-4" aria-hidden="true" /> Other Issue
                         </div>
                       </SelectItem>
                     </SelectContent>
@@ -233,7 +233,7 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: Rep
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
-                     <MessageSquare className="w-4 h-4" /> Description
+                     <MessageSquare className="w-4 h-4" aria-hidden="true" /> Description
                   </FormLabel>
                   <FormControl>
                     <Textarea

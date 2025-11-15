@@ -80,7 +80,7 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
                 <div className='space-y-2'>
                     <PlaceAutocomplete onPlaceSelect={onPlaceSelect} />
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         <Input
                             placeholder="Search cameras..."
                             value={searchTerm}
@@ -93,8 +93,9 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
                             size="icon"
                             className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                             onClick={() => setSearchTerm('')}
+                            aria-label="Clear search"
                             >
-                            <X className="h-4 w-4" />
+                            <X className="h-4 w-4" aria-hidden="true" />
                             </Button>
                         )}
                     </div>
@@ -117,7 +118,7 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
                                 selectedCamera?.id === camera.id && "bg-accent"
                             )}
                             >
-                                <Camera className="w-4 h-4 text-muted-foreground" />
+                                <Camera className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                                 <span className="flex-1 text-left truncate">{camera.name}</span>
                             </Button>
                         ))}
