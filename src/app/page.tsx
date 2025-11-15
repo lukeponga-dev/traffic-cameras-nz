@@ -34,9 +34,7 @@ async function getCameras(): Promise<SpeedCamera[]> {
 
     const cameras: TrafficAPICamera[] = Array.isArray(cameraList) ? cameraList : [cameraList];
 
-    const activeCameras = cameras.filter(cam => getText(cam.status) !== 'Inactive' && cam.offline?._text !== 'true');
-
-    return activeCameras.map(cam => {
+    return cameras.map(cam => {
         const speedLimitText = getText(cam.speedLimit);
         const lat = parseFloat(getText(cam.latitude));
         const lon = parseFloat(getText(cam.longitude));
@@ -52,6 +50,16 @@ async function getCameras(): Promise<SpeedCamera[]> {
           cameraType = 'Mobile';
         }
 
+        const isOffline = cam.offline?._text === 'true';
+        const statusText = getText(cam.status);
+        let status: SpeedCamera['status'] = 'Inactive';
+        if (isOffline) {
+          status = 'Offline';
+        } else if (statusText === 'Active') {
+          status = 'Active';
+        }
+
+
         return {
             id: getText(cam.id),
             name: getText(cam.name),
@@ -60,7 +68,7 @@ async function getCameras(): Promise<SpeedCamera[]> {
             longitude: lon,
             cameraType: cameraType,
             speedLimit: speedLimitText ? parseInt(speedLimitText, 10) : null,
-            status: getText(cam.status) as 'Active' | 'Inactive',
+            status: status,
             viewUrl: `https://trafficnz.info${getText(cam.imageUrl)}`,
             description: getText(cam.description),
             direction: getText(cam.direction),

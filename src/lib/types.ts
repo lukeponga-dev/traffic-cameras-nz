@@ -1,5 +1,5 @@
 export type CameraType = 'Fixed' | 'Average' | 'Mobile' | 'Red light';
-export type CameraStatus = 'Active' | 'Inactive';
+export type CameraStatus = 'Active' | 'Inactive' | 'Offline';
 
 export interface SpeedCamera {
   id: string;

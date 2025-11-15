@@ -49,7 +49,7 @@ const SidebarContent = ({
     filteredCamerasCount, 
     totalCamerasCount,
     selectedCamera,
-    location
+    userLocation
   } : {
     typeFilter: CameraTypeFilter;
     setTypeFilter: (filter: CameraTypeFilter) => void;
@@ -58,9 +58,9 @@ const SidebarContent = ({
     filteredCamerasCount: number;
     totalCamerasCount: number;
     selectedCamera: SpeedCamera | null;
-    location: { latitude: number | null; longitude: number | null; }
+    userLocation: { latitude: number | null; longitude: number | null; }
   }) => (
-    <div className="flex flex-col h-full bg-card">
+    <>
       <SheetHeader className="p-0">
         <Logo />
         <SheetTitle className="sr-only">App Menu</SheetTitle>
@@ -106,7 +106,7 @@ const SidebarContent = ({
         <div className="flex items-center justify-between">
           <Label htmlFor="show-inactive" className="font-semibold flex items-center gap-2">
             <Power className="w-4 h-4 text-muted-foreground" />
-            Show Inactive
+            Show Inactive/Offline
           </Label>
           <Switch
             id="show-inactive"
@@ -123,11 +123,11 @@ const SidebarContent = ({
       <div className="p-4 flex items-center justify-between">
         <ReportDialog
           selectedCamera={selectedCamera}
-          userLocation={location}
+          userLocation={userLocation}
         />
         <ThemeToggle />
       </div>
-    </div>
+    </>
   );
 
 export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
@@ -188,7 +188,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
                 </Button>
             </SheetTrigger>
           </MapControl>
-          <SheetContent side="left" className="p-0 w-[300px]" onOpenAutoFocus={(e) => e.preventDefault()}>
+          <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
             <SidebarContent 
               typeFilter={typeFilter}
               setTypeFilter={setTypeFilter}
@@ -197,12 +197,12 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
               filteredCamerasCount={filteredCameras.length}
               totalCamerasCount={cameras.length}
               selectedCamera={selectedCamera}
-              location={location}
+              userLocation={location}
             />
           </SheetContent>
         </Sheet>
       ) : (
-        <div className="w-[300px] border-r h-full shadow-md z-10">
+        <div className="w-[300px] border-r h-full shadow-md z-10 flex flex-col">
           <SidebarContent 
             typeFilter={typeFilter}
             setTypeFilter={setTypeFilter}
@@ -211,7 +211,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             filteredCamerasCount={filteredCameras.length}
             totalCamerasCount={cameras.length}
             selectedCamera={selectedCamera}
-            location={location}
+            userLocation={location}
           />
         </div>
       )}
