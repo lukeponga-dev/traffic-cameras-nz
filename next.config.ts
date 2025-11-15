@@ -24,9 +24,6 @@
 
       const nextConfig: NextConfig = {
         /* config options here */
-        devIndicators: {
-          buildActivity: false,
-        },
         typescript: {
           ignoreBuildErrors: true,
         },
