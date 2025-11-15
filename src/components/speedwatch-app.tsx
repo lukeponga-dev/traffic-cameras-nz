@@ -175,11 +175,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
           {isMobile && (
             <MapControl position={ControlPosition.TOP_LEFT}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="m-4">
+               <Button variant="outline" size="icon" className="m-4" onClick={() => setMobileSheetOpen(true)}>
                   <Menu className="h-4 w-4" />
                 </Button>
-              </SheetTrigger>
             </MapControl>
           )}
         </Map>
