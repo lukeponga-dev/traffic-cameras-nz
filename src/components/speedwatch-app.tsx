@@ -19,8 +19,8 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
-  SheetTitle,
   SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -59,13 +59,16 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   }
 
   const center = useMemo(() => {
+    if (selectedCamera) {
+      return { lat: selectedCamera.latitude, lng: selectedCamera.longitude };
+    }
     if (location.latitude && location.longitude) {
       return { lat: location.latitude, lng: location.longitude };
     }
     return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
-  }, [location.latitude, location.longitude]);
+  }, [selectedCamera, location.latitude, location.longitude]);
 
-  if (typeof isMobile === 'undefined') {
+  if (isMobile === undefined) {
     return <SpeedwatchAppSkeleton />;
   }
   
