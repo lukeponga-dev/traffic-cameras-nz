@@ -8,10 +8,10 @@ import {
   ControlPosition,
   Marker,
 } from "@vis.gl/react-google-maps";
-import { Camera, Gauge, Menu, Power, User } from "lucide-react";
+import { Camera, Gauge, Menu, Power, User, Route } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
-import type { SpeedCamera } from "@/lib/types";
+import type { SpeedCamera, CameraType } from "@/lib/types";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -35,7 +35,7 @@ import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { Badge } from "./ui/badge";
 
-type CameraTypeFilter = "all" | "Fixed" | "Average";
+type CameraTypeFilter = "all" | CameraType;
 
 interface SpeedwatchAppProps {
   cameras: SpeedCamera[];
@@ -46,7 +46,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     null
   );
   const [typeFilter, setTypeFilter] = useState<CameraTypeFilter>("all");
-  const [showInactive, setShowInactive] = useState(true);
+  const [showInactive, setShowInactive] = useState(false);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   
   const isMobile = useIsMobile();
@@ -65,7 +65,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
   const filteredCameras = useMemo(() => {
     return cameras.filter((camera) => {
-      const typeMatch = typeFilter === "all" || camera.camera_type === typeFilter;
+      const typeMatch = typeFilter === "all" || camera.cameraType === typeFilter;
       const statusMatch = showInactive || camera.status === "Active";
       return typeMatch && statusMatch;
     });
@@ -84,7 +84,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-card">
-      <SheetHeader className="p-0">
+       <SheetHeader className="p-0">
         <Logo />
         <SheetTitle className="sr-only">App Menu</SheetTitle>
       </SheetHeader>
@@ -112,9 +112,15 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
               </Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Average" id="average" />
-              <Label htmlFor="average" className="font-normal flex items-center gap-2">
-                <Gauge className="w-4 h-4 text-primary" /> Average
+              <RadioGroupItem value="Mobile" id="mobile" />
+              <Label htmlFor="mobile" className="font-normal flex items-center gap-2">
+                <Gauge className="w-4 h-4 text-primary" /> Mobile
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Red light" id="red-light" />
+              <Label htmlFor="red-light" className="font-normal flex items-center gap-2">
+                <Route className="w-4 h-4 text-yellow-500" /> Red Light
               </Label>
             </div>
           </RadioGroup>
@@ -133,7 +139,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         </div>
         <Separator />
          <div className="text-center">
-            <Badge variant="secondary">{filteredCameras.length} cameras shown</Badge>
+            <Badge variant="secondary">{filteredCameras.length} of {cameras.length} cameras shown</Badge>
         </div>
       </div>
       <Separator />
@@ -149,29 +155,36 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   );
 
   if (!isClient) {
-    return null;
+    return (
+        <div className="h-screen w-screen flex items-center justify-center bg-background text-foreground">
+            <div className="flex items-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin"/>
+                <p>Loading Map...</p>
+            </div>
+        </div>
+    );
   }
   
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
-      {isMobile ? (
+      <div className="md:hidden">
         <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-          <MapControl position={ControlPosition.TOP_LEFT}>
-            <SheetTrigger asChild>
+          <SheetTrigger asChild>
+            <MapControl position={ControlPosition.TOP_LEFT}>
               <Button variant="outline" size="icon" className="m-4">
                 <Menu className="h-4 w-4" />
               </Button>
-            </SheetTrigger>
-          </MapControl>
+            </MapControl>
+          </SheetTrigger>
           <SheetContent side="left" className="p-0 w-[300px]">
             <SidebarContent />
           </SheetContent>
         </Sheet>
-      ) : (
-        <div className="w-[300px] border-r h-full shadow-md z-10">
-          <SidebarContent />
-        </div>
-      )}
+      </div>
+
+      <div className="hidden md:block w-[300px] border-r h-full shadow-md z-10">
+        <SidebarContent />
+      </div>
 
       <main className="flex-1 h-full relative">
         <Map
@@ -211,3 +224,5 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     </div>
   );
 }
+
+import { Loader2 } from "lucide-react";

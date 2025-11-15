@@ -9,11 +9,9 @@ import {
 } from "@/components/ui/sheet";
 import type { SpeedCamera } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Camera, Gauge, MapPin, Power, Wind, Calendar, Clock } from "lucide-react";
+import { Camera, Gauge, MapPin, Power, Wind, Route, Compass } from "lucide-react";
 import Image from 'next/image';
-import { format } from 'date-fns';
 
 interface CameraDetailsSheetProps {
   camera: SpeedCamera | null;
@@ -31,8 +29,8 @@ export function CameraDetailsSheet({
           <div className="flex flex-col h-full">
             <div className="relative h-48 w-full">
                 <Image
-                    src={`https://picsum.photos/seed/${camera.id}/600/400`}
-                    alt={`Street view of ${camera.road_name}`}
+                    src={camera.viewUrl}
+                    alt={`Street view of ${camera.name}`}
                     data-ai-hint="road street"
                     fill
                     className="object-cover"
@@ -41,30 +39,34 @@ export function CameraDetailsSheet({
             </div>
 
             <SheetHeader className="p-6 text-left -mt-12 z-10">
-              <SheetTitle className="text-2xl font-bold">{camera.road_name}</SheetTitle>
+              <SheetTitle className="text-2xl font-bold">{camera.name}</SheetTitle>
               <SheetDescription>{camera.region}</SheetDescription>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto p-6 pt-0">
+                <p className="text-sm text-muted-foreground mb-6">{camera.description}</p>
               <div className="flex gap-2 mb-6">
                 <Badge variant={camera.status === 'Active' ? 'default' : 'secondary'} className="capitalize">
                   <Power className="w-3 h-3 mr-1" /> {camera.status}
                 </Badge>
                 <Badge variant="outline" className="capitalize">
-                   {camera.camera_type === 'Fixed' ?
-                   <Camera className="w-3 h-3 mr-1" /> :
-                   <Gauge className="w-3 h-3 mr-1" />}
-                   {camera.camera_type}
+                   {camera.cameraType === 'Fixed' && <Camera className="w-3 h-3 mr-1" />}
+                   {camera.cameraType === 'Mobile' && <Gauge className="w-3 h-3 mr-1" />}
+                   {camera.cameraType === 'Red light' && <Route className="w-3 h-3 mr-1" />}
+                   {camera.cameraType}
                 </Badge>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    <Wind className="w-5 h-5 text-primary"/>
-                    <span>Speed Limit</span>
-                </div>
-                <div className="font-semibold text-right">{camera.speed_limit} mph</div>
-
-                <div className="col-span-2"><Separator/></div>
+                {camera.speedLimit && (
+                    <>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Wind className="w-5 h-5 text-primary"/>
+                        <span>Speed Limit</span>
+                    </div>
+                    <div className="font-semibold text-right">{camera.speedLimit} km/h</div>
+                    <div className="col-span-2"><Separator/></div>
+                    </>
+                )}
                 
                 <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="w-5 h-5 text-primary"/>
@@ -77,18 +79,11 @@ export function CameraDetailsSheet({
                 <div className="col-span-2"><Separator/></div>
                 
                 <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="w-5 h-5 text-primary"/>
-                    <span>Enforcement Start</span>
+                    <Compass className="w-5 h-5 text-primary"/>
+                    <span>Direction</span>
                 </div>
-                <div className="font-semibold text-right">{format(new Date(camera.enforcement_start), 'PPP')}</div>
+                <div className="font-semibold text-right">{camera.direction}</div>
                 
-                <div className="col-span-2"><Separator/></div>
-                
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="w-5 h-5 text-primary"/>
-                    <span>Last Updated</span>
-                </div>
-                <div className="font-semibold text-right">{format(new Date(camera.last_updated), 'PPP p')}</div>
               </div>
             </div>
           </div>

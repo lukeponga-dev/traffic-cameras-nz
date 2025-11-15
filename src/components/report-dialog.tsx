@@ -150,7 +150,7 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: Rep
           <DialogTitle>Report a Data Issue</DialogTitle>
           <DialogDescription>
             Help us improve our data. If you've noticed an error, please let us know.
-            {selectedCamera && ` You are reporting an issue for camera: ${selectedCamera.road_name}.`}
+            {selectedCamera && ` You are reporting an issue for camera: ${selectedCamera.name}.`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
