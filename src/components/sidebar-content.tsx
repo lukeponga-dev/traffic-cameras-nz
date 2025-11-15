@@ -107,19 +107,19 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
                     <AccordionItem value={region} key={region}>
                     <AccordionTrigger>{region} ({filteredCameras[region].length})</AccordionTrigger>
                     <AccordionContent>
-                        <div className="flex flex-col gap-1 -ml-4">
+                        <div className="flex flex-col gap-1 -ml-4 -mr-4">
                         {filteredCameras[region].map((camera) => (
                             <Button
                             key={camera.id}
                             variant="ghost"
                             onClick={() => onCameraSelect(camera)}
                             className={cn(
-                                "flex justify-start items-center gap-2 w-full",
-                                selectedCamera?.id === camera.id && "bg-accent"
+                                "flex justify-start items-center gap-2 w-full h-auto py-2 px-4 rounded-none",
+                                selectedCamera?.id === camera.id && "bg-accent text-accent-foreground"
                             )}
                             >
-                                <Camera className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                                <span className="flex-1 text-left truncate">{camera.name}</span>
+                                <Camera className="w-4 h-4 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+                                <span className="flex-1 text-left text-sm whitespace-normal">{camera.name}</span>
                             </Button>
                         ))}
                         </div>

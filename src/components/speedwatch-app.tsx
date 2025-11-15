@@ -19,10 +19,8 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -143,7 +141,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   );
 
   return (
-    <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-12">
+    <div className="h-dvh w-screen grid grid-cols-1 md:grid-cols-12">
       <div className="md:col-span-8 lg:col-span-9 w-full h-full relative">
         <Map
           defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
@@ -173,18 +171,15 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             <div className="m-2 md:hidden">
                  <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
                     <SheetTrigger asChild>
-                        <Button variant="outline" size="icon" aria-label="Open navigation menu">
+                        <Button variant="outline" size="icon" aria-label="Open navigation menu" className="shadow-md">
                             <Menu className="h-4 w-4" />
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
-                        <SheetHeader className="p-4 border-b">
+                        <SheetHeader className="p-4 border-b bg-muted/30">
                             <SheetTitle>
                                 <Logo />
                             </SheetTitle>
-                            <SheetDescription className="sr-only">
-                                Navigate and control the map
-                            </SheetDescription>
                         </SheetHeader>
                         {sidebar}
                     </SheetContent>
@@ -193,23 +188,25 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
           </MapControl>
         </Map>
         <MapControl position={ControlPosition.RIGHT_BOTTOM}>
-            {destination && (
-                 <Button variant="outline" size="icon" className="m-4 mb-2" onClick={clearDirections} aria-label="Clear directions">
-                    <X className="h-4 w-4"/>
+            <div className="flex flex-col items-end m-2">
+                {destination && (
+                    <Button variant="outline" size="icon" className="mb-2 shadow-md" onClick={clearDirections} aria-label="Clear directions">
+                        <X className="h-4 w-4"/>
+                    </Button>
+                )}
+                <Button variant="outline" size="icon" className="shadow-md" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
+                    <LocateFixed className="h-4 w-4"/>
                 </Button>
-            )}
-            <Button variant="outline" size="icon" className="m-4 mt-0" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
-                <LocateFixed className="h-4 w-4"/>
-            </Button>
+            </div>
         </MapControl>
       </div>
 
-      <div className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-background">
+      <aside className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-card">
         <div className="p-4 border-b">
             <Logo />
         </div>
         {sidebar}
-      </div>
+      </aside>
 
       <CameraDetailsSheet
         camera={selectedCamera}
