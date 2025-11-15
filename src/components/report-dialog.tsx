@@ -4,7 +4,8 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useFormStatus, useActionState } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState, useEffect } from "react";
 import {
   AlertCircle,
   Flag,
@@ -13,7 +14,6 @@ import {
   MapPin,
   MessageSquare,
 } from "lucide-react";
-import { useEffect } from "react";
 
 import { submitReport, type State } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
