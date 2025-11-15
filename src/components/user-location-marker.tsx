@@ -14,8 +14,7 @@ export function UserLocationMarker() {
   return (
     <Marker position={{ lat: location.latitude, lng: location.longitude }}>
       <div className="relative flex items-center justify-center">
-        <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-lg"></div>
-        <div className="absolute w-8 h-8 rounded-full bg-blue-500/20 animate-ping"></div>
+        <div className="w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white shadow-md" />
       </div>
     </Marker>
   );
