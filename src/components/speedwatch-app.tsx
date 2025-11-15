@@ -8,7 +8,7 @@ import {
   ControlPosition,
   Marker,
 } from "@vis.gl/react-google-maps";
-import { Camera, Gauge, Menu, Power, User, Route } from "lucide-react";
+import { Camera, Gauge, Menu, Power, User, Route, LoaderCircle } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
 import type { SpeedCamera, CameraType } from "@/lib/types";
@@ -34,8 +34,6 @@ import { ReportDialog } from "./report-dialog";
 import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { Badge } from "./ui/badge";
-import { Loader2 } from "lucide-react";
-
 
 type CameraTypeFilter = "all" | CameraType;
 
@@ -50,8 +48,6 @@ const SidebarContent = ({
     setShowInactive, 
     filteredCamerasCount, 
     totalCamerasCount,
-    isMobile,
-    setMobileSheetOpen,
     selectedCamera,
     location
   } : {
@@ -61,13 +57,11 @@ const SidebarContent = ({
     setShowInactive: (show: boolean) => void;
     filteredCamerasCount: number;
     totalCamerasCount: number;
-    isMobile: boolean;
-    setMobileSheetOpen: (open: boolean) => void;
     selectedCamera: SpeedCamera | null;
     location: { latitude: number | null; longitude: number | null; }
   }) => (
     <div className="flex flex-col h-full bg-card">
-       <SheetHeader className="p-0">
+      <SheetHeader className="p-0">
         <Logo />
         <SheetTitle className="sr-only">App Menu</SheetTitle>
       </SheetHeader>
@@ -103,7 +97,7 @@ const SidebarContent = ({
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Red light" id="red-light" />
               <Label htmlFor="red-light" className="font-normal flex items-center gap-2">
-                <Route className="w-4 h-4 text-yellow-500" /> Red Light
+                <Route className="w-4 h-4 text-accent" /> Red Light
               </Label>
             </div>
           </RadioGroup>
@@ -128,7 +122,6 @@ const SidebarContent = ({
       <Separator />
       <div className="p-4 flex items-center justify-between">
         <ReportDialog
-          onOpenChange={isMobile ? setMobileSheetOpen : undefined}
           selectedCamera={selectedCamera}
           userLocation={location}
         />
@@ -147,14 +140,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   
   const isMobile = useIsMobile();
   
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const locationOptions = useMemo(() => ({
+  const locationOptions = {
     enableHighAccuracy: true,
-  }), []);
+  };
 
   const location = useGeolocation(locationOptions);
 
@@ -178,11 +166,11 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   }, [location.latitude, location.longitude]);
 
 
-  if (!isClient) {
+  if (isMobile === undefined) {
     return (
         <div className="h-screen w-screen flex items-center justify-center bg-background text-foreground">
             <div className="flex items-center gap-2">
-                <Loader2 className="w-6 h-6 animate-spin"/>
+                <LoaderCircle className="w-6 h-6 animate-spin"/>
                 <p>Loading Map...</p>
             </div>
         </div>
@@ -200,7 +188,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
                 </Button>
             </SheetTrigger>
           </MapControl>
-          <SheetContent side="left" className="p-0 w-[300px]">
+          <SheetContent side="left" className="p-0 w-[300px]" onOpenAutoFocus={(e) => e.preventDefault()}>
             <SidebarContent 
               typeFilter={typeFilter}
               setTypeFilter={setTypeFilter}
@@ -208,8 +196,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
               setShowInactive={setShowInactive}
               filteredCamerasCount={filteredCameras.length}
               totalCamerasCount={cameras.length}
-              isMobile={isMobile}
-              setMobileSheetOpen={setMobileSheetOpen}
               selectedCamera={selectedCamera}
               location={location}
             />
@@ -224,8 +210,6 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
             setShowInactive={setShowInactive}
             filteredCamerasCount={filteredCameras.length}
             totalCamerasCount={cameras.length}
-            isMobile={isMobile}
-            setMobileSheetOpen={setMobileSheetOpen}
             selectedCamera={selectedCamera}
             location={location}
           />
@@ -270,5 +254,3 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     </div>
   );
 }
-
-    
