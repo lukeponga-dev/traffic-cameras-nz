@@ -35,7 +35,7 @@ import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { Badge } from "./ui/badge";
 
-type CameraTypeFilter = "all" | "fixed" | "average";
+type CameraTypeFilter = "all" | "Fixed" | "Average";
 
 interface SpeedwatchAppProps {
   cameras: SpeedCamera[];
@@ -49,24 +49,24 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const [showInactive, setShowInactive] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   
+  const isMobile = useIsMobile();
+  
   // Prevent server-side rendering of components that use useIsMobile
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-
   const locationOptions = useMemo(() => ({
     enableHighAccuracy: true,
   }), []);
 
   const location = useGeolocation(locationOptions);
-  const isMobile = useIsMobile();
 
   const filteredCameras = useMemo(() => {
     return cameras.filter((camera) => {
-      const typeMatch = typeFilter === "all" || camera.type === typeFilter;
-      const statusMatch = showInactive || camera.status === "active";
+      const typeMatch = typeFilter === "all" || camera.camera_type === typeFilter;
+      const statusMatch = showInactive || camera.status === "Active";
       return typeMatch && statusMatch;
     });
   }, [cameras, typeFilter, showInactive]);
@@ -85,8 +85,8 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-card">
       <SheetHeader className="p-0">
-        <SheetTitle className="sr-only">App Menu</SheetTitle>
         <Logo />
+        <SheetTitle className="sr-only">App Menu</SheetTitle>
       </SheetHeader>
       <Separator />
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -106,13 +106,13 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
               </Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="fixed" id="fixed" />
+              <RadioGroupItem value="Fixed" id="fixed" />
               <Label htmlFor="fixed" className="font-normal flex items-center gap-2">
                 <Camera className="w-4 h-4 text-destructive" /> Fixed
               </Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="average" id="average" />
+              <RadioGroupItem value="Average" id="average" />
               <Label htmlFor="average" className="font-normal flex items-center gap-2">
                 <Gauge className="w-4 h-4 text-primary" /> Average
               </Label>
@@ -148,29 +148,29 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     </div>
   );
 
+  if (!isClient) {
+    return null;
+  }
+  
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
-      {isClient && (
-        <>
-          {isMobile ? (
-            <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-              <SheetContent side="left" className="p-0 w-[300px]">
-                <SidebarContent />
-              </SheetContent>
-              <MapControl position={ControlPosition.TOP_LEFT}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="m-4">
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </SheetTrigger>
-              </MapControl>
-            </Sheet>
-          ) : (
-            <div className="w-[300px] border-r h-full shadow-md z-10">
-              <SidebarContent />
-            </div>
-          )}
-        </>
+      {isMobile ? (
+        <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+          <MapControl position={ControlPosition.TOP_LEFT}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="m-4">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+          </MapControl>
+          <SheetContent side="left" className="p-0 w-[300px]">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <div className="w-[300px] border-r h-full shadow-md z-10">
+          <SidebarContent />
+        </div>
       )}
 
       <main className="flex-1 h-full relative">

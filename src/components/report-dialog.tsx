@@ -4,7 +4,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useFormStatus } from "react-dom";
+import { useFormStatus, useActionState } from "react-dom";
 import {
   AlertCircle,
   Flag,
@@ -14,7 +14,6 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useEffect } from "react";
-import { useActionState } from "react";
 
 import { submitReport, type State } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -151,7 +150,7 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: Rep
           <DialogTitle>Report a Data Issue</DialogTitle>
           <DialogDescription>
             Help us improve our data. If you've noticed an error, please let us know.
-            {selectedCamera && ` You are reporting an issue for camera: ${selectedCamera.road}.`}
+            {selectedCamera && ` You are reporting an issue for camera: ${selectedCamera.road_name}.`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

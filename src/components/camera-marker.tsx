@@ -13,12 +13,12 @@ export function CameraMarker({ camera, onClick }: CameraMarkerProps) {
   let borderColor = "hsl(var(--muted))";
   let glyphColor = "hsl(var(--muted))";
 
-  if (camera.status === "active") {
-    if (camera.type === "fixed") {
+  if (camera.status === "Active") {
+    if (camera.camera_type === "Fixed") {
       pinColor = "hsl(var(--destructive))"; // red
       borderColor = "hsl(var(--destructive-foreground))";
       glyphColor = "hsl(var(--destructive-foreground))";
-    } else if (camera.type === "average") {
+    } else if (camera.camera_type === "Average") {
       pinColor = "hsl(var(--primary))"; // blue
       borderColor = "hsl(var(--primary-foreground))";
       glyphColor = "hsl(var(--primary-foreground))";
@@ -27,9 +27,9 @@ export function CameraMarker({ camera, onClick }: CameraMarkerProps) {
 
   return (
     <AdvancedMarker
-      position={camera.location}
+      position={{ lat: camera.latitude, lng: camera.longitude }}
       onClick={onClick}
-      title={`${camera.road} (${camera.speed_limit} mph)`}
+      title={`${camera.road_name} (${camera.speed_limit} mph)`}
     >
       <Pin
         background={pinColor}

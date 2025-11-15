@@ -11,8 +11,9 @@ import type { SpeedCamera } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Camera, Gauge, MapPin, Power, Wind } from "lucide-react";
+import { Camera, Gauge, MapPin, Power, Wind, Calendar, Clock } from "lucide-react";
 import Image from 'next/image';
+import { format } from 'date-fns';
 
 interface CameraDetailsSheetProps {
   camera: SpeedCamera | null;
@@ -31,7 +32,7 @@ export function CameraDetailsSheet({
             <div className="relative h-48 w-full">
                 <Image
                     src={`https://picsum.photos/seed/${camera.id}/600/400`}
-                    alt={`Street view of ${camera.road}`}
+                    alt={`Street view of ${camera.road_name}`}
                     data-ai-hint="road street"
                     fill
                     className="object-cover"
@@ -40,19 +41,19 @@ export function CameraDetailsSheet({
             </div>
 
             <SheetHeader className="p-6 text-left -mt-12 z-10">
-              <SheetTitle className="text-2xl font-bold">{camera.road}</SheetTitle>
+              <SheetTitle className="text-2xl font-bold">{camera.road_name}</SheetTitle>
               <SheetDescription>{camera.region}</SheetDescription>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto p-6 pt-0">
               <div className="flex gap-2 mb-6">
-                <Badge variant={camera.status === 'active' ? 'default' : 'secondary'} className="capitalize">
+                <Badge variant={camera.status === 'Active' ? 'default' : 'secondary'} className="capitalize">
                   <Power className="w-3 h-3 mr-1" /> {camera.status}
                 </Badge>
                 <Badge variant="outline" className="capitalize">
-                   {camera.type === 'fixed' ? 
+                   {camera.camera_type === 'Fixed' ?
                    <Camera className="w-3 h-3 mr-1" /> :
                    <Gauge className="w-3 h-3 mr-1" />}
-                   {camera.type}
+                   {camera.camera_type}
                 </Badge>
               </div>
 
@@ -70,8 +71,24 @@ export function CameraDetailsSheet({
                     <span>Coordinates</span>
                 </div>
                 <div className="font-mono text-xs text-right">
-                    {camera.location.lat.toFixed(4)}, <br/> {camera.location.lng.toFixed(4)}
+                    {camera.latitude.toFixed(4)}, <br/> {camera.longitude.toFixed(4)}
                 </div>
+
+                <div className="col-span-2"><Separator/></div>
+                
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="w-5 h-5 text-primary"/>
+                    <span>Enforcement Start</span>
+                </div>
+                <div className="font-semibold text-right">{format(new Date(camera.enforcement_start), 'PPP')}</div>
+                
+                <div className="col-span-2"><Separator/></div>
+                
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="w-5 h-5 text-primary"/>
+                    <span>Last Updated</span>
+                </div>
+                <div className="font-semibold text-right">{format(new Date(camera.last_updated), 'PPP p')}</div>
               </div>
             </div>
           </div>
