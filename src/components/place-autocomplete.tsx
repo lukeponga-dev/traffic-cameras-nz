@@ -33,8 +33,14 @@ export function PlaceAutocomplete({ onPlaceSelect }: PlaceAutocompleteProps) {
 
     return () => {
       // Clean up the autocomplete instance
-      const pacContainers = document.querySelectorAll('.pac-container');
-      pacContainers.forEach(container => container.remove());
+      if (window.google) {
+        const pacContainers = document.querySelectorAll('.pac-container');
+        pacContainers.forEach(container => container.remove());
+        // It's tricky to properly remove listeners from google maps autocomplete
+        // this is a workaround to prevent memory leaks
+        const clone = inputRef.current?.cloneNode(true) as HTMLInputElement;
+        inputRef.current?.parentNode?.replaceChild(clone, inputRef.current);
+      }
     };
   }, [map, onPlaceSelect]);
   

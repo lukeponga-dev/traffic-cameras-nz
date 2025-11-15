@@ -8,7 +8,7 @@ import {
   ControlPosition,
 } from "@vis.gl/react-google-maps";
 import { Menu, LocateFixed, X } from "lucide-react";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
   SheetHeader,
-  SheetTitle
+  SheetTitle,
+  SheetTrigger
 } from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -115,24 +115,32 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     setDestination(null);
   }
 
+  const origin = useMemo(() => {
+    return location.latitude && location.longitude 
+      ? new google.maps.LatLng(location.latitude, location.longitude) 
+      : null;
+  }, [location.latitude, location.longitude]);
+
+
   if (isMobile === undefined) {
     return <SpeedwatchAppSkeleton />;
   }
-  
-  const origin = location.latitude && location.longitude 
-    ? new google.maps.LatLng(location.latitude, location.longitude) 
-    : null;
 
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
       {isMobile ? (
         <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
           <MapControl position={ControlPosition.TOP_LEFT}>
-            <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="m-4">
-                  <Menu className="h-4 w-4" />
-                </Button>
-            </SheetTrigger>
+            <div className="m-4 flex flex-col gap-4">
+              <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="h-4 w-4" />
+                  </Button>
+              </SheetTrigger>
+              <div className="w-64">
+                <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
+              </div>
+            </div>
           </MapControl>
           <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
           <SheetHeader className="p-4 border-b">
