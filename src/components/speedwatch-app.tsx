@@ -127,49 +127,8 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
-      {isMobile ? (
-        <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-          <MapControl position={ControlPosition.TOP_LEFT}>
-            <div className="m-4 flex flex-col gap-4">
-              <SheetTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Menu className="h-4 w-4" />
-                  </Button>
-              </SheetTrigger>
-              <div className="w-64">
-                <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
-              </div>
-            </div>
-          </MapControl>
-          <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
-          <SheetHeader className="p-4 border-b">
-              <SheetTitle>SpeedWatch NZ</SheetTitle>
-          </SheetHeader>
-            <SidebarContent 
-              isMobile={isMobile}
-              selectedCamera={selectedCamera}
-              userLocation={location}
-              cameras={cameras}
-              onCameraSelect={handleCameraSelect}
-              onPlaceSelect={handlePlaceSelect}
-            />
-          </SheetContent>
-        </Sheet>
-      ) : (
-        <div className="w-[300px] border-r h-full shadow-md z-10 flex flex-col">
-          <SidebarContent 
-            isMobile={isMobile}
-            selectedCamera={selectedCamera}
-            userLocation={location}
-            cameras={cameras}
-            onCameraSelect={handleCameraSelect}
-            onPlaceSelect={handlePlaceSelect}
-          />
-        </div>
-      )}
-
-      <main className="flex-1 h-full relative">
+    <div className="h-screen grid grid-cols-12">
+      <div className="col-span-9">
         <Map
           defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
           defaultZoom={6}
@@ -206,7 +165,44 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
                 <LocateFixed className="h-4 w-4"/>
             </Button>
         </MapControl>
-      </main>
+      </div>
+
+      <div className="col-span-3 border-l p-4 space-y-6 bg-gray-50 dark:bg-gray-900">
+        <h2 className="text-lg font-bold">Navigation</h2>
+        <Button className="w-full" onClick={handleRecenter} disabled={!location.latitude}>
+          Set my location
+        </Button>
+        <Button className="w-full" variant="destructive" onClick={clearDirections} disabled={!destination}>
+          Clear route
+        </Button>
+
+        <label className="block mt-4 text-sm">Mode</label>
+        <select className="w-full border rounded px-2 py-1">
+          <option>Driving</option>
+          <option>Cycling</option>
+          <option>Walking</option>
+        </select>
+
+        <div className="mt-4 text-sm">
+          <p>Estimated: 12.4 km • 15 min</p>
+        </div>
+
+        <h3 className="text-md font-semibold mt-6">Waypoints</h3>
+        <ul className="space-y-2">
+          <li className="flex justify-between items-center">
+            <span>Camera #1</span>
+            <Button variant="secondary" size="sm">Remove</Button>
+          </li>
+        </ul>
+
+        <h3 className="text-md font-semibold mt-6">Events</h3>
+        <div className="space-y-3">
+          <div className="p-2 border rounded">
+            <p className="font-semibold">Crash on SH1</p>
+            <Button size="sm">Route to event</Button>
+          </div>
+        </div>
+      </div>
 
       <CameraDetailsSheet
         camera={selectedCamera}
