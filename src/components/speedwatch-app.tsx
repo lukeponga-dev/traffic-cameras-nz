@@ -9,7 +9,7 @@ import {
   Marker,
 } from "@vis.gl/react-google-maps";
 import { Camera, Gauge, Menu, Power, User } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import type { SpeedCamera } from "@/lib/types";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -48,6 +48,13 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const [typeFilter, setTypeFilter] = useState<CameraTypeFilter>("all");
   const [showInactive, setShowInactive] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  
+  // Prevent server-side rendering of components that use useIsMobile
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const locationOptions = useMemo(() => ({
     enableHighAccuracy: true,
@@ -78,6 +85,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-card">
       <SheetHeader className="p-0">
+        <SheetTitle className="sr-only">App Menu</SheetTitle>
         <Logo />
       </SheetHeader>
       <Separator />
@@ -142,26 +150,27 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
 
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
-      {isMobile ? (
-        <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-          <SheetContent side="left" className="p-0 w-[300px]">
-            <SheetHeader>
-              <SheetTitle className="sr-only">App Menu</SheetTitle>
-            </SheetHeader>
-            <SidebarContent />
-          </SheetContent>
-          <MapControl position={ControlPosition.TOP_LEFT}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="m-4">
-                <Menu className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-          </MapControl>
-        </Sheet>
-      ) : (
-        <div className="w-[300px] border-r h-full shadow-md z-10">
-          <SidebarContent />
-        </div>
+      {isClient && (
+        <>
+          {isMobile ? (
+            <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+              <SheetContent side="left" className="p-0 w-[300px]">
+                <SidebarContent />
+              </SheetContent>
+              <MapControl position={ControlPosition.TOP_LEFT}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="m-4">
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+              </MapControl>
+            </Sheet>
+          ) : (
+            <div className="w-[300px] border-r h-full shadow-md z-10">
+              <SidebarContent />
+            </div>
+          )}
+        </>
       )}
 
       <main className="flex-1 h-full relative">
