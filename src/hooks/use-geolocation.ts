@@ -25,8 +25,6 @@ export function useGeolocation(options: PositionOptions = {}) {
         return;
     }
 
-    let watcherId: number;
-
     const onSuccess = (position: GeolocationPosition) => {
       setLocation({
         latitude: position.coords.latitude,
@@ -41,14 +39,9 @@ export function useGeolocation(options: PositionOptions = {}) {
     };
     
     navigator.geolocation.getCurrentPosition(onSuccess, onError, options);
-    watcherId = navigator.geolocation.watchPosition(onSuccess, onError, options);
 
-    return () => {
-      if (watcherId) {
-        navigator.geolocation.clearWatch(watcherId);
-      }
-    };
-  }, [options]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return location;
 }
