@@ -34,6 +34,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { ReportDialog } from "./report-dialog";
 import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
+import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 
 
 interface SpeedwatchAppProps {
@@ -52,7 +53,9 @@ const SidebarContent = ({
     onCameraSelect: (camera: CameraType) => void;
   }) => (
     <>
-      <Logo />
+      <div className="p-4">
+        <Logo />
+      </div>
       <Separator />
       <Tabs defaultValue="info" className="flex-1 flex flex-col overflow-hidden">
       <TabsList className="m-4">
@@ -120,6 +123,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     return { lat: -41.2865, lng: 174.7762 }; // Default to Wellington, NZ
   }, [location.latitude, location.longitude]);
 
+  if (isMobile === undefined) {
+    return <SpeedwatchAppSkeleton />;
+  }
   
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-background">
@@ -145,7 +151,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
           </SheetContent>
         </Sheet>
       ) : (
-        <div className="w-[300px] border-r h-full shadow-md z-10 flex flex-col p-4">
+        <div className="w-[300px] border-r h-full shadow-md z-10 flex flex-col">
           <SidebarContent 
             selectedCamera={selectedCamera}
             userLocation={location}
@@ -159,7 +165,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         <Map
           key={JSON.stringify(center)} // Force re-render on center change
           defaultCenter={center}
-          defaultZoom={6}
+          defaultZoom={13}
           gestureHandling={"greedy"}
           disableDefaultUI={true}
           mapId={"a3d7f7635c0cf699"}
