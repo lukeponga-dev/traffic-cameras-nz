@@ -84,9 +84,10 @@ interface ReportDialogProps {
   onOpenChange?: (open: boolean) => void;
   selectedCamera: Camera | null;
   userLocation: { latitude: number | null, longitude: number | null };
+  children?: React.ReactNode;
 }
 
-export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: ReportDialogProps) {
+export function ReportDialog({ onOpenChange, selectedCamera, userLocation, children }: ReportDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [state, formAction] = useActionState<State, FormData>(submitReport, {
@@ -141,10 +142,12 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation }: Rep
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" aria-label={selectedCamera ? `Report an issue with ${selectedCamera.name}`: "Report a data issue"}>
-          <Flag className="mr-2 h-4 w-4" aria-hidden="true" />
-          Report Issue
-        </Button>
+        {children || (
+            <Button variant="outline" aria-label={selectedCamera ? `Report an issue with ${selectedCamera.name}`: "Report a data issue"}>
+                <Flag className="mr-2 h-4 w-4" aria-hidden="true" />
+                Report Issue
+            </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>

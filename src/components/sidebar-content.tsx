@@ -133,14 +133,18 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
                     </div>
                 )}
             </ScrollArea>
-            <Separator />
-            <div className="p-4 flex items-center justify-between">
-                <ReportDialog 
-                    selectedCamera={selectedCamera}
-                    userLocation={userLocation}
-                />
-                <ThemeToggle />
-            </div>
+           {!isMobile && (
+             <>
+                <Separator />
+                <div className="p-4 flex items-center justify-between">
+                    <ReportDialog 
+                        selectedCamera={selectedCamera}
+                        userLocation={userLocation}
+                    />
+                    <ThemeToggle />
+                </div>
+             </>
+           )}
         </>
     );
 

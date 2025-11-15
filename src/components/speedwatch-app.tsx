@@ -8,7 +8,7 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { Menu, LocateFixed, X } from "lucide-react";
+import { LocateFixed, X } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
@@ -16,13 +16,6 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
 import { SidebarContent } from "@/components/sidebar-content";
 import { CameraMarker } from "./camera-marker";
@@ -31,6 +24,7 @@ import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
 import { Logo } from "@/components/logo";
+import { BottomNavigation } from "./bottom-navigation";
 
 
 interface SpeedwatchAppProps {
@@ -41,9 +35,9 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(
     null
   );
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
+  const [isCameraDrawerOpen, setIsCameraDrawerOpen] = useState(false);
   
   const map = useMap();
   
@@ -60,24 +54,22 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
     setSelectedCamera(camera);
     setIsFollowingUser(false);
     if (isMobile) {
-        setMobileSheetOpen(false);
+        setIsCameraDrawerOpen(false);
     }
     setDestination(null); // Clear route when a new camera is selected from the list
   }
 
   const handlePlaceSelect = useCallback((place: google.maps.places.PlaceResult | null) => {
-    if (place?.geometry?.location && map) {
+    if (place?.geometry?.location && map && window.google) {
       map.panTo(place.geometry.location);
       map.setZoom(14);
       setIsFollowingUser(false);
-      if (window.google) {
-        setDestination(place.geometry.location);
-      }
+      setDestination(place.geometry.location);
     } else {
         setDestination(null);
     }
     if (isMobile) {
-      setMobileSheetOpen(false);
+        setIsCameraDrawerOpen(false);
     }
   }, [isMobile, map]);
 
@@ -142,7 +134,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
   );
 
   return (
-    <div className="h-dvh w-screen grid grid-cols-1 md:grid-cols-12">
+    <div className="h-dvh w-screen grid grid-cols-1 md:grid-cols-12 relative">
       <div className="md:col-span-8 lg:col-span-9 w-full h-full relative">
         <Map
           defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
@@ -170,21 +162,7 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
           )}
            <MapControl position={ControlPosition.TOP_LEFT}>
             <div className="m-2 md:hidden">
-                 <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-                    <SheetTrigger asChild>
-                        <Button variant="outline" size="icon" aria-label="Open navigation menu" className="shadow-md">
-                            <Menu className="h-4 w-4" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-[300px] flex flex-col" onOpenAutoFocus={(e) => e.preventDefault()}>
-                        <SheetHeader className="p-4 border-b bg-muted/30">
-                            <SheetTitle>
-                                <Logo />
-                            </SheetTitle>
-                        </SheetHeader>
-                        {sidebar}
-                    </SheetContent>
-                </Sheet>
+                 <Logo />
             </div>
           </MapControl>
         </Map>
@@ -202,12 +180,23 @@ export function SpeedwatchApp({ cameras }: SpeedwatchAppProps) {
         </MapControl>
       </div>
 
-      <aside className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-card">
-        <div className="p-4 border-b">
-            <Logo />
-        </div>
-        {sidebar}
-      </aside>
+      {isMobile ? (
+        <BottomNavigation 
+            selectedCamera={selectedCamera}
+            userLocation={{ latitude: location.latitude, longitude: location.longitude }}
+            onCameraListToggle={() => setIsCameraDrawerOpen(!isCameraDrawerOpen)}
+            isCameraDrawerOpen={isCameraDrawerOpen}
+        >
+            {sidebar}
+        </BottomNavigation>
+      ) : (
+        <aside className="hidden md:flex md:col-span-4 lg:col-span-3 flex-col border-l bg-card">
+          <div className="p-4 border-b">
+              <Logo />
+          </div>
+          {sidebar}
+        </aside>
+      )}
 
       <CameraDetailsSheet
         camera={selectedCamera}
