@@ -1,4 +1,6 @@
 
+'use client';
+
 import { z } from 'zod';
 
 const CameraSchema = z.object({
@@ -16,22 +18,26 @@ const CameraSchema = z.object({
 
 export type Camera = z.infer<typeof CameraSchema>;
 
+async function fetchTrafficData(resource: string, params: Record<string, string> = {}) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002';
+  const queryString = new URLSearchParams(params).toString();
+  const url = `${baseUrl}/api/traffic/${resource}${queryString ? `?${queryString}` : ''}`;
+  
+  const res = await fetch(url, {
+    next: { revalidate: 60 } // Revalidate every minute
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${resource}: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+
 export async function getCameras(): Promise<Camera[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002';
-    const res = await fetch(
-      `${baseUrl}/api/cameras`, 
-      {
-        next: { revalidate: 300 }, // Revalidate every 5 minutes
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch camera data: ${res.statusText}`);
-    }
+    const data = await fetchTrafficData('cameras/all');
     
-    const data = await res.json();
-
     if (!data || !data.features) {
       console.error('Unexpected data structure from API. Full result:', JSON.stringify(data, null, 2));
       return [];
