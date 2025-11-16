@@ -19,9 +19,8 @@ const CameraSchema = z.object({
 export type Camera = z.infer<typeof CameraSchema>;
 
 async function fetchTrafficData(resource: string, params: Record<string, string> = {}) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002';
   const queryString = new URLSearchParams(params).toString();
-  const url = `${baseUrl}/api/traffic/${resource}${queryString ? `?${queryString}` : ''}`;
+  const url = `/api/traffic/${resource}${queryString ? `?${queryString}` : ''}`;
   
   const res = await fetch(url, {
     next: { revalidate: 60 } // Revalidate every minute
@@ -36,7 +35,7 @@ async function fetchTrafficData(resource: string, params: Record<string, string>
 
 export async function getCameras(): Promise<Camera[]> {
   try {
-    const data = await fetchTrafficData('cameras/all');
+    const data = await fetchTrafficData('camera/all');
     
     if (!data || !data.features) {
       console.error('Unexpected data structure from API. Full result:', JSON.stringify(data, null, 2));
