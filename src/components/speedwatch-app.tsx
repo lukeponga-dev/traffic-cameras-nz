@@ -46,22 +46,8 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
 
   useEffect(() => {
-    async function fetchCameras() {
-      try {
-        const res = await fetch("/api/cameras");
-        if (!res.ok) throw new Error("Failed to fetch cameras");
-        const xmlText = await res.text();
-        // This is a workaround to parse the data on the client.
-        // Ideally this would be done on the server.
-        const { getCameras: parseCameras } = await import('@/lib/traffic-api');
-        const data = await parseCameras(xmlText);
-        setCameraData(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchCameras();
-  }, []);
+    setCameraData(cameras);
+  }, [cameras]);
 
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
