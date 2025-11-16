@@ -236,7 +236,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
       </Sheet>
 
       <CameraDetailsSheet
-        camera={camera}
+        camera={selectedCamera}
         onOpenChange={(isOpen) => {
           if (!isOpen) setSelectedCamera(null);
         }}
