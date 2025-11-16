@@ -8,42 +8,31 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { LocateFixed, X, PanelLeft, ListFilter } from "lucide-react";
+import { LocateFixed, X, ListFilter } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Button } from "@/components/ui/button";
-import { SidebarProvider, Sidebar, SidebarHeader, useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
-import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
-
-import { SidebarContent } from "@/components/sidebar-content";
-import { CameraMarker } from "./camera-marker";
-import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
-import { Logo } from "@/components/logo";
 import { BottomNavigation } from "./bottom-navigation";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
-import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
+import { CameraMarker } from "./camera-marker";
+import { CameraDetailsSheet } from "./camera-details-sheet";
 
 function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(null);
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
   const [cameraData, setCameraData] = useState<CameraType[]>(cameras);
-  const [isCameraDrawerOpen, setIsCameraDrawerOpen] = useState(false);
 
   const map = useMap();
   const isMobile = useIsMobile();
   const location = useGeolocation({ enableHighAccuracy: true });
-  const { isSidebarOpen, setSidebarOpen } = useSidebar();
-
 
   useEffect(() => {
     async function fetchCameras() {
@@ -62,21 +51,8 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
     setIsFollowingUser(false);
-    if(isMobile) {
-      setIsCameraDrawerOpen(false);
-    }
   };
 
-  const handleCameraSelect = (camera: CameraType) => {
-    setSelectedCamera(camera);
-    setIsFollowingUser(false);
-    setDestination(null);
-    if (isMobile) {
-      setSidebarOpen(false);
-      setIsCameraDrawerOpen(false);
-    }
-  };
-  
   const handlePlaceSelect = useCallback((place: google.maps.places.PlaceResult | null) => {
     if (place?.geometry?.location && map && window.google) {
       map.panTo(place.geometry.location);
@@ -145,24 +121,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
   return (
     <div className="h-dvh w-screen relative overflow-hidden bg-background">
-      <div className="h-dvh w-full relative flex">
-         <Sidebar>
-            <VisuallyHidden.Root>
-                <DialogTitle>Navigation Sidebar</DialogTitle>
-                <DialogDescription>Main navigation and camera list.</DialogDescription>
-            </VisuallyHidden.Root>
-            <SidebarHeader>
-                <Logo />
-            </SidebarHeader>
-            <SidebarContent 
-                cameras={cameraData}
-                selectedCamera={selectedCamera}
-                onCameraSelect={handleCameraSelect}
-                isMobile={isMobile}
-                userLocation={{ latitude: location.latitude, longitude: location.longitude }}
-            />
-        </Sidebar>
-        <main className="flex-1 h-dvh w-full relative">
+        <main className="h-dvh w-full relative">
             <Map
             defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
             defaultZoom={6}
@@ -187,26 +146,15 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             )}
             </Map>
             
-            <MapControl position={ControlPosition.TOP_LEFT}>
-            <div className="m-2 md:m-4 flex items-center gap-2">
-                <div className="md:hidden bg-card/80 backdrop-blur-sm rounded-lg shadow-md border">
-                    <SidebarTrigger/>
-                </div>
-                <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border">
-                
-                <div className="hidden md:flex items-center gap-2">
-                    <Logo />
-                    <Separator orientation="vertical" className="h-6" />
-                </div>
-                <div className="flex gap-2">
+            <MapControl position={ControlPosition.TOP_CENTER}>
+              <div className="mt-2 md:mt-4 w-full px-2 md:px-4">
+                <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border w-full max-w-md mx-auto">
                     <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
                     <Button variant="outline" size="icon">
-                    <ListFilter className="h-4 w-4"/>
+                      <ListFilter className="h-4 w-4"/>
                     </Button>
                 </div>
-                </div>
-                
-            </div>
+              </div>
             </MapControl>
 
             <MapControl position={ControlPosition.RIGHT_BOTTOM}>
@@ -222,28 +170,8 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </div>
             </MapControl>
 
-            {isMobile && <BottomNavigation onCameraListToggle={() => setIsCameraDrawerOpen(true)} />}
+            <BottomNavigation />
         </main>
-      </div>
-
-       <Sheet open={isCameraDrawerOpen} onOpenChange={setIsCameraDrawerOpen}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm flex flex-col p-0">
-            <VisuallyHidden.Root>
-                <DialogTitle>Cameras</DialogTitle>
-                <DialogDescription>A list of speed cameras by region.</DialogDescription>
-            </VisuallyHidden.Root>
-            <SheetHeader className="p-4 border-b">
-                <SheetTitle>Cameras</SheetTitle>
-            </SheetHeader>
-            <SidebarContent 
-                cameras={cameraData}
-                selectedCamera={selectedCamera}
-                onCameraSelect={handleCameraSelect}
-                isMobile={true}
-                userLocation={{ latitude: location.latitude, longitude: location.longitude }}
-            />
-        </SheetContent>
-      </Sheet>
 
       <CameraDetailsSheet
         camera={selectedCamera}
@@ -264,8 +192,6 @@ interface SpeedwatchAppProps {
 export function SpeedwatchApp(props: SpeedwatchAppProps) {
   const isMobile = useIsMobile();
   return (
-    <SidebarProvider defaultOpen={!isMobile}>
       <SpeedwatchAppInternal {...props} />
-    </SidebarProvider>
   );
 }
