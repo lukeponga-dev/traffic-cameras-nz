@@ -10,6 +10,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import { LocateFixed, X, PanelLeft, ListFilter } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -17,7 +18,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, Sidebar, SidebarHeader, useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 import { SidebarContent } from "@/components/sidebar-content";
@@ -28,7 +28,7 @@ import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
 import { Logo } from "@/components/logo";
 import { BottomNavigation } from "./bottom-navigation";
-import { Sheet, SheetContent, SheetHeader } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
 
