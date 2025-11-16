@@ -1,3 +1,4 @@
+git remote -v
 
 # SpeedWatch Mobile
 
