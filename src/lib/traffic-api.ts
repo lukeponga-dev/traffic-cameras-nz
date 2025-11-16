@@ -52,7 +52,7 @@ function normalizeCamera(cam: any): Camera {
         region: props['region/name'] || 'N/A',
         road: props.highway || null,
         updatedAt: cam.lastModified || null,
-        status: props.offline === 'false' ? 'Active' : 'Inactive',
+        status: props.status === 'Active' ? 'Active' : 'Inactive',
         direction: props.direction,
         description: props.description,
     };
@@ -118,3 +118,4 @@ export async function getRoadEventsByRegion(region: string): Promise<RoadEvent[]
     const raw = await fetchWithFallback<any[]>(`findRoadEventsByRegion?region=${region}`);
     return raw.map(normalizeEvent);
 }
+
