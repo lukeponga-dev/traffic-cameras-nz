@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { BarChart, ChevronRight, User, Palette, Bell, Shield } from "lucide-react";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { cn } from "@/lib/utils";
 
 const data = [
     { name: "Mon", total: Math.floor(Math.random() * 20) + 5 },
@@ -23,6 +24,8 @@ const data = [
 ]
 
 export default function SettingsPage() {
+  const buttonClasses = "w-full justify-between h-auto p-3 text-left flex items-center gap-3 rounded-lg hover:bg-accent hover:text-accent-foreground";
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
        <div className="flex items-center justify-between space-y-2">
@@ -58,34 +61,34 @@ export default function SettingsPage() {
 
       <Card>
           <CardContent className="p-2">
-              <Button variant="ghost" className="w-full justify-between h-auto p-3">
+              <div className={cn(buttonClasses)}>
                   <div className="flex items-center gap-3">
                       <User className="w-5 h-5 text-muted-foreground" />
                       <span>Account</span>
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Button>
-               <Button variant="ghost" className="w-full justify-between h-auto p-3">
+              </div>
+              <div className={cn(buttonClasses)}>
                   <div className="flex items-center gap-3">
                       <Palette className="w-5 h-5 text-muted-foreground" />
                       <span>Theme</span>
                   </div>
                   <ThemeToggle />
-              </Button>
-               <Button variant="ghost" className="w-full justify-between h-auto p-3">
+              </div>
+               <div className={cn(buttonClasses)}>
                   <div className="flex items-center gap-3">
                       <Bell className="w-5 h-5 text-muted-foreground" />
                       <span>Notifications</span>
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Button>
-               <Button variant="ghost" className="w-full justify-between h-auto p-3">
+              </div>
+               <div className={cn(buttonClasses)}>
                   <div className="flex items-center gap-3">
                       <Shield className="w-5 h-5 text-muted-foreground" />
                       <span>Privacy Policy</span>
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Button>
+              </div>
           </CardContent>
       </Card>
     </div>
