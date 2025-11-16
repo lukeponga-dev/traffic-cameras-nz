@@ -20,8 +20,8 @@ const getText = (node: any): string => (node && node._text ? node._text.toString
 
 export async function getCameras(): Promise<Camera[]> {
   try {
-    // This function fetches camera data from the NZTA traffic API.
-    // It has a revalidation period of 5 minutes to ensure data is fresh.
+    // This function fetches camera data from the app's local API route,
+    // which acts as a proxy to the NZTA traffic API.
     const res = await fetch(
       '/api/cameras',
       {
@@ -67,8 +67,6 @@ export async function getCameras(): Promise<Camera[]> {
             viewUrl: `https://trafficnz.info${getText(cam.imageUrl)}`,
             description: getText(cam.description),
             direction: getText(cam.direction),
-            // The API doesn't provide a status, so we'll set a consistent one
-            // to avoid hydration mismatches between server and client.
             status: 'Active',
         }
     }).filter((c): c is Camera => c !== null);
