@@ -8,7 +8,7 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { LocateFixed, X, Search, ListFilter, PanelLeft } from "lucide-react";
+import { LocateFixed, X, PanelLeft, ListFilter } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
@@ -16,7 +16,7 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Button } from "@/components/ui/button";
-import { SidebarProvider, Sidebar, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarHeader, useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
@@ -42,6 +42,8 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   const map = useMap();
   const isMobile = useIsMobile();
   const location = useGeolocation({ enableHighAccuracy: true });
+  const { isSidebarOpen, setSidebarOpen } = useSidebar();
+
 
   useEffect(() => {
     async function fetchCameras() {
@@ -67,7 +69,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
     setIsFollowingUser(false);
     setDestination(null);
     if (isMobile) {
-      setIsCameraDrawerOpen(false);
+      setSidebarOpen(false);
     }
   };
   
@@ -139,67 +141,85 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
   return (
     <div className="h-dvh w-screen relative overflow-hidden bg-background">
-      <div className="h-dvh w-full relative">
-        <Map
-          defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
-          defaultZoom={6}
-          gestureHandling={"greedy"}
-          disableDefaultUI={true}
-          mapId={"a3d7f7635c0cf699"}
-          className="w-full h-full"
-          onDrag={onMapInteraction}
-          onZoomChanged={onMapInteraction}
-          onBoundsChanged={onMapInteraction}
-        >
-          {cameraData.map((camera) => (
-            <CameraMarker
-              key={camera.id}
-              camera={camera}
-              onClick={() => handleMarkerClick(camera)}
+      <div className="h-dvh w-full relative flex">
+         <Sidebar>
+            <VisuallyHidden.Root>
+                <DialogTitle>Navigation Sidebar</DialogTitle>
+                <DialogDescription>Main navigation and camera list.</DialogDescription>
+            </VisuallyHidden.Root>
+            <SidebarHeader>
+                <Logo />
+            </SidebarHeader>
+            <SidebarContent 
+                cameras={cameraData}
+                selectedCamera={selectedCamera}
+                onCameraSelect={handleCameraSelect}
+                isMobile={isMobile}
+                userLocation={{ latitude: location.latitude, longitude: location.longitude }}
             />
-          ))}
-          <UserLocationMarker />
-          {origin && destination && (
-            <Directions origin={origin} destination={destination} />
-          )}
-        </Map>
-        
-        <MapControl position={ControlPosition.TOP_LEFT}>
-          <div className="m-2 md:m-4 flex items-center gap-2">
-            <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border">
-              <Logo />
-              <div className="hidden md:block">
-                <Separator orientation="vertical" className="h-6" />
-                <div className="flex gap-2 pl-2">
-                  <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
-                  <Button variant="outline" size="icon">
-                    <ListFilter className="h-4 w-4"/>
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="md:hidden bg-card/80 backdrop-blur-sm rounded-lg shadow-md border">
-               <Button variant="ghost" size="icon" onClick={() => setIsCameraDrawerOpen(true)}>
-                  <PanelLeft className="h-5 w-5"/>
-               </Button>
-            </div>
-          </div>
-        </MapControl>
-
-        <MapControl position={ControlPosition.RIGHT_BOTTOM}>
-          <div className="m-2 md:m-4 flex flex-col items-center gap-2">
-            {destination && (
-              <Button variant="secondary" size="icon" className="shadow-lg" onClick={clearDirections} aria-label="Clear directions">
-                <X className="h-5 w-5" />
-              </Button>
+        </Sidebar>
+        <main className="flex-1 h-dvh w-full relative">
+            <Map
+            defaultCenter={{ lat: -41.2865, lng: 174.7762 }}
+            defaultZoom={6}
+            gestureHandling={"greedy"}
+            disableDefaultUI={true}
+            mapId={"a3d7f7635c0cf699"}
+            className="w-full h-full"
+            onDrag={onMapInteraction}
+            onZoomChanged={onMapInteraction}
+            onBoundsChanged={onMapInteraction}
+            >
+            {cameraData.map((camera) => (
+                <CameraMarker
+                key={camera.id}
+                camera={camera}
+                onClick={() => handleMarkerClick(camera)}
+                />
+            ))}
+            <UserLocationMarker />
+            {origin && destination && (
+                <Directions origin={origin} destination={destination} />
             )}
-            <Button variant="secondary" size="icon" className="shadow-lg" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
-              <LocateFixed className="h-5 w-5" />
-            </Button>
-          </div>
-        </MapControl>
+            </Map>
+            
+            <MapControl position={ControlPosition.TOP_LEFT}>
+            <div className="m-2 md:m-4 flex items-center gap-2">
+                <div className="md:hidden bg-card/80 backdrop-blur-sm rounded-lg shadow-md border">
+                    <SidebarTrigger/>
+                </div>
+                <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border">
+                
+                <div className="hidden md:flex items-center gap-2">
+                    <Logo />
+                    <Separator orientation="vertical" className="h-6" />
+                </div>
+                <div className="flex gap-2">
+                    <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
+                    <Button variant="outline" size="icon">
+                    <ListFilter className="h-4 w-4"/>
+                    </Button>
+                </div>
+                </div>
+                
+            </div>
+            </MapControl>
 
-        {isMobile && <BottomNavigation onCameraListToggle={() => setIsCameraDrawerOpen(!isCameraDrawerOpen)} />}
+            <MapControl position={ControlPosition.RIGHT_BOTTOM}>
+            <div className="m-2 md:m-4 flex flex-col items-center gap-2">
+                {destination && (
+                <Button variant="secondary" size="icon" className="shadow-lg" onClick={clearDirections} aria-label="Clear directions">
+                    <X className="h-5 w-5" />
+                </Button>
+                )}
+                <Button variant="secondary" size="icon" className="shadow-lg" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
+                <LocateFixed className="h-5 w-5" />
+                </Button>
+            </div>
+            </MapControl>
+
+            {isMobile && <BottomNavigation />}
+        </main>
       </div>
 
       <CameraDetailsSheet
@@ -210,28 +230,6 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
         onGetDirections={handleGetDirections}
         userLocation={{ latitude: location.latitude, longitude: location.longitude }}
       />
-      
-      <Sheet open={isCameraDrawerOpen} onOpenChange={setIsCameraDrawerOpen}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm flex flex-col p-0">
-            <VisuallyHidden.Root>
-                <DialogTitle>Cameras</DialogTitle>
-                <DialogDescription>A list of speed cameras by region.</DialogDescription>
-            </VisuallyHidden.Root>
-            <SheetHeader className="p-4">
-                <SheetTitle>Cameras</SheetTitle>
-            </SheetHeader>
-            <Separator />
-            <div className="flex-1 min-h-0">
-                <SidebarContent 
-                    cameras={cameraData}
-                    selectedCamera={selectedCamera}
-                    userLocation={{ latitude: location.latitude, longitude: location.longitude }}
-                    onCameraSelect={handleCameraSelect}
-                    isMobile={isMobile}
-                />
-            </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
@@ -241,8 +239,9 @@ interface SpeedwatchAppProps {
 }
 
 export function SpeedwatchApp(props: SpeedwatchAppProps) {
+  const isMobile = useIsMobile();
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={!isMobile}>
       <SpeedwatchAppInternal {...props} />
     </SidebarProvider>
   );
