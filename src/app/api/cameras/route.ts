@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const res = await fetch(
-      'https://trafficnz.info/service/traffic/rest/4/cameras/all', 
+      'https://api.trafficnz.info/v2/camera/all', 
       {
         next: { revalidate: 300 }, // Revalidate every 5 minutes
       }
@@ -14,11 +14,9 @@ export async function GET() {
       throw new Error(`Failed to fetch from NZTA API: ${res.statusText}`);
     }
 
-    const xmlText = await res.text();
+    const data = await res.json();
     
-    return new Response(xmlText, {
-      headers: { 'Content-Type': 'application/xml' },
-    });
+    return NextResponse.json(data);
 
   } catch (error) {
     console.error('Error in /api/cameras route:', error);
