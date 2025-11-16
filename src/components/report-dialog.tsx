@@ -70,6 +70,9 @@ const reportFormSchema = z.object({
 
 type ReportFormValues = z.infer<typeof reportFormSchema>;
 
+/**
+ * A submit button that shows a loading spinner when the form is pending.
+ */
 const SubmitButton = () => {
   const { pending } = useFormStatus();
   return (
@@ -87,6 +90,9 @@ interface ReportDialogProps {
   children?: React.ReactNode;
 }
 
+/**
+ * A dialog for users to report data issues with speed cameras.
+ */
 export function ReportDialog({ onOpenChange, selectedCamera, userLocation, children }: ReportDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
@@ -210,17 +216,17 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation, child
                     <SelectContent>
                       <SelectItem value="incorrect_speed_limit">
                         <div className="flex items-center gap-2">
-                          <Gauge className="w-4 h-4" aria-hidden="true" /> Incorrect Speed Limit
+                          <Gauge className="w-4 h-4 text-muted-foreground" aria-hidden="true" /> Incorrect Speed Limit
                         </div>
                       </SelectItem>
                       <SelectItem value="incorrect_location">
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4" aria-hidden="true" /> Incorrect Location
+                          <MapPin className="w-4 h-4 text-muted-foreground" aria-hidden="true" /> Incorrect Location
                         </div>
                       </SelectItem>
                       <SelectItem value="other">
                         <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4" aria-hidden="true" /> Other Issue
+                          <AlertCircle className="w-4 h-4 text-muted-foreground" aria-hidden="true" /> Other Issue
                         </div>
                       </SelectItem>
                     </SelectContent>

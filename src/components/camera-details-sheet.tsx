@@ -21,6 +21,10 @@ interface CameraDetailsSheetProps {
   onGetDirections: (camera: Camera) => void;
 }
 
+/**
+ * A sheet component that displays the details of a selected camera.
+ * It slides up from the bottom on mobile and from the side on desktop.
+ */
 export function CameraDetailsSheet({
   camera,
   onOpenChange,
@@ -61,8 +65,8 @@ export function CameraDetailsSheet({
                     <MapPin className="w-5 h-5 text-primary"/>
                     <span>Coordinates</span>
                 </div>
-                <div className="font-mono text-xs text-right">
-                    {camera.latitude.toFixed(4)}, <br/> {camera.longitude.toFixed(4)}
+                <div className="font-mono text-xs text-right self-center">
+                    {camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}
                 </div>
 
                 <div className="col-span-2"><Separator/></div>
@@ -71,11 +75,11 @@ export function CameraDetailsSheet({
                     <Compass className="w-5 h-5 text-primary"/>
                     <span>Direction</span>
                 </div>
-                <div className="font-semibold text-right">{camera.direction}</div>
+                <div className="font-semibold text-right self-center">{camera.direction}</div>
                 
               </div>
             </div>
-             <SheetFooter className="p-4 border-t mt-auto">
+             <SheetFooter className="p-4 border-t bg-background mt-auto sticky bottom-0">
                 <Button onClick={() => onGetDirections(camera)} className="w-full">
                     <Route className="mr-2 h-4 w-4" />
                     Get Directions
