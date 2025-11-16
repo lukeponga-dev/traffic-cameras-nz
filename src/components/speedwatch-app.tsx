@@ -28,7 +28,7 @@ import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
 import { Logo } from "@/components/logo";
 import { BottomNavigation } from "./bottom-navigation";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
 
@@ -62,6 +62,9 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
     setIsFollowingUser(false);
+    if(isMobile) {
+      setIsCameraDrawerOpen(false);
+    }
   };
 
   const handleCameraSelect = (camera: CameraType) => {
@@ -70,6 +73,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
     setDestination(null);
     if (isMobile) {
       setSidebarOpen(false);
+      setIsCameraDrawerOpen(false);
     }
   };
   
@@ -218,9 +222,28 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </div>
             </MapControl>
 
-            {isMobile && <BottomNavigation />}
+            {isMobile && <BottomNavigation onCameraListToggle={() => setIsCameraDrawerOpen(true)} />}
         </main>
       </div>
+
+       <Sheet open={isCameraDrawerOpen} onOpenChange={setIsCameraDrawerOpen}>
+        <SheetContent side="left" className="w-[85vw] max-w-sm flex flex-col p-0">
+            <VisuallyHidden.Root>
+                <DialogTitle>Cameras</DialogTitle>
+                <DialogDescription>A list of speed cameras by region.</DialogDescription>
+            </VisuallyHidden.Root>
+            <SheetHeader className="p-4 border-b">
+                <SheetTitle>Cameras</SheetTitle>
+            </SheetHeader>
+            <SidebarContent 
+                cameras={cameraData}
+                selectedCamera={selectedCamera}
+                onCameraSelect={handleCameraSelect}
+                isMobile={true}
+                userLocation={{ latitude: location.latitude, longitude: location.longitude }}
+            />
+        </SheetContent>
+      </Sheet>
 
       <CameraDetailsSheet
         camera={selectedCamera}
