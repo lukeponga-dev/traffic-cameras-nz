@@ -2,16 +2,14 @@
 "use client";
 
 import * as React from "react";
-import { Map, BarChart2, Bell, Settings, List } from "lucide-react";
+import { Map, BarChart2, Bell, Settings } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 
-interface BottomNavigationProps {
-  onCameraListToggle: () => void;
-}
+interface BottomNavigationProps {}
 
-export function BottomNavigation({ onCameraListToggle }: BottomNavigationProps) {
+export function BottomNavigation({}: BottomNavigationProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -25,22 +23,13 @@ export function BottomNavigation({ onCameraListToggle }: BottomNavigationProps) 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-20 md:hidden">
       <div className="flex justify-around items-center h-full">
-        <Button
-          variant="ghost"
-          className="flex-1 flex-col h-full space-y-1"
-          onClick={onCameraListToggle}
-        >
-          <List className="w-5 h-5" />
-          <span className="text-xs">Cameras</span>
-        </Button>
-
         {navItems.map((item) => (
           <Button
             key={item.href}
             variant="ghost"
             className={cn(
-              "flex-1 flex-col h-full space-y-1",
-              pathname === item.href && "text-primary"
+              "flex-1 flex-col h-full space-y-1 rounded-none",
+              pathname === item.href && "text-primary bg-primary/10"
             )}
             onClick={() => router.push(item.href)}
           >

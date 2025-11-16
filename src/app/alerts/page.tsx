@@ -1,4 +1,5 @@
 
+'use client';
 import {
   Card,
   CardContent,
@@ -6,7 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Bell, ToggleRight } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Star, TrafficCone, AlertTriangle, Camera } from "lucide-react";
+import Image from "next/image";
 
 export default function AlertsPage() {
   return (
@@ -16,48 +20,48 @@ export default function AlertsPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Notification Preferences</CardTitle>
-          <CardDescription>
-            Choose which alerts you want to receive.
-          </CardDescription>
+        <CardHeader className="p-4">
+            <div className="relative h-40 w-full rounded-lg overflow-hidden">
+                <Image src="https://picsum.photos/seed/hamilton/800/400" alt="SH1 Hamilton" layout="fill" objectFit="cover" data-ai-hint="road bridge" />
+            </div>
+             <div className="pt-4">
+                <CardTitle>SH1 Hamilton</CardTitle>
+                <CardDescription>Status: Active | 2-min ago</CardDescription>
+            </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-lg border">
-                <div className="space-y-0.5">
-                    <p className="font-medium">Speed Cameras</p>
-                    <p className="text-sm text-muted-foreground">Alerts for fixed and mobile speed cameras.</p>
-                </div>
-                <ToggleRight className="w-12 h-8 text-primary" />
-            </div>
-             <div className="flex items-center justify-between p-4 rounded-lg border">
-                <div className="space-y-0.5">
-                    <p className="font-medium">Traffic Congestion</p>
-                    <p className="text-sm text-muted-foreground">Notifications about heavy traffic on your route.</p>
-                </div>
-                <ToggleRight className="w-12 h-8 text-primary" />
-            </div>
-             <div className="flex items-center justify-between p-4 rounded-lg border">
-                <div className="space-y-0.5">
-                    <p className="font-medium">Road Hazards</p>
-                    <p className="text-sm text-muted-foreground">Alerts for accidents, roadworks, and other hazards.</p>
-                </div>
-                <ToggleRight className="w-12 h-8 text-primary" />
-            </div>
+        <CardContent className="p-4 pt-0">
+           <Button className="w-full">
+                <Star className="mr-2 h-4 w-4" /> Add to Favorites
+           </Button>
         </CardContent>
       </Card>
 
        <Card>
         <CardHeader>
-          <CardTitle>Recent Alerts</CardTitle>
-          <CardDescription>
-            A list of your most recent notifications.
-          </CardDescription>
+          <CardTitle>Alerts update</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center text-center py-12">
-            <Bell className="w-16 h-16 text-muted-foreground/50" />
-            <p className="mt-4 font-medium">No alerts yet</p>
-            <p className="text-sm text-muted-foreground">Your recent notifications will appear here.</p>
+        <CardContent className="space-y-1">
+            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50">
+                <div className="flex items-center gap-3">
+                    <Camera className="w-5 h-5 text-muted-foreground"/>
+                    <span className="font-medium">Speed Camera</span>
+                </div>
+                <Switch defaultChecked={true} />
+            </div>
+             <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50">
+                <div className="flex items-center gap-3">
+                    <TrafficCone className="w-5 h-5 text-muted-foreground"/>
+                    <span className="font-medium">Congestion reported</span>
+                </div>
+                <Switch defaultChecked={true} />
+            </div>
+             <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50">
+                <div className="flex items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 text-muted-foreground"/>
+                    <span className="font-medium">Hazard (Flooding)</span>
+                </div>
+                <Switch defaultChecked={true} />
+            </div>
         </CardContent>
       </Card>
 

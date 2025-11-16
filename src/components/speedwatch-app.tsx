@@ -8,7 +8,7 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { LocateFixed, X, PanelLeft, ListFilter } from "lucide-react";
+import { LocateFixed, X, PanelLeft, ListFilter, Search } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
@@ -31,6 +31,7 @@ import { BottomNavigation } from "./bottom-navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
+import { Input } from "./ui/input";
 
 function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(null);
@@ -178,24 +179,23 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </Map>
             
             <MapControl position={ControlPosition.TOP_LEFT}>
-            <div className="m-2 md:m-4 flex items-center gap-2">
+            <div className="m-2 md:m-4 flex items-center gap-2 w-full max-w-sm md:max-w-md">
                 <div className="md:hidden bg-card/80 backdrop-blur-sm rounded-lg shadow-md border">
                     <SidebarTrigger/>
                 </div>
-                <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border">
-                
-                <div className="hidden md:flex items-center gap-2">
-                    <Logo />
-                    <Separator orientation="vertical" className="h-6" />
-                </div>
-                <div className="flex gap-2">
-                    <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
-                    <Button variant="outline" size="icon">
-                    <ListFilter className="h-4 w-4"/>
+                <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border flex-1">
+                    <div className="hidden md:flex items-center gap-2">
+                        <Logo />
+                        <Separator orientation="vertical" className="h-6" />
+                    </div>
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Search location or Camera ID" className="pl-9 bg-background/50" />
+                    </div>
+                    <Button variant="ghost" size="icon" className="flex-shrink-0">
+                        <ListFilter className="h-4 w-4"/>
                     </Button>
                 </div>
-                </div>
-                
             </div>
             </MapControl>
 
@@ -212,7 +212,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </div>
             </MapControl>
 
-            {isMobile && <BottomNavigation onCameraListToggle={() => setIsCameraDrawerOpen(true)} />}
+            {isMobile && <BottomNavigation />}
         </main>
       </div>
 

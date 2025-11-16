@@ -27,14 +27,10 @@ export default function Home() {
   const handlePermissionsGranted = () => {
     requestUserPermission();
     setPermissionsGranted(true);
+    setLoading(false);
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000); // Simulate splash screen time
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading || !permissionsGranted) {
+  if (loading) {
     return <SplashScreen onComplete={handlePermissionsGranted} />;
   }
 
