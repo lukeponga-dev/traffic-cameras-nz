@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { Camera } from '@/lib/traffic-api';
+import { getCameras, type Camera } from '@/lib/traffic-api';
 import { SpeedwatchAppLoader } from '@/components/speedwatch-app-loader';
 import { SplashScreen } from '@/components/splash-screen';
 import { requestUserPermission } from '@/lib/permissions';
@@ -15,12 +15,10 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch('/api/cameras');
-        if (!res.ok) throw new Error('Failed to fetch cameras');
-        const data = await res.json();
+        const data = await getCameras();
         setCameraData(data);
       } catch (error) {
-        console.error(error);
+        console.error("Failed to fetch camera data:", error);
       }
     }
     fetchData();
