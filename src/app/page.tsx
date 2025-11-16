@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -8,36 +7,28 @@ import { SplashScreen } from '@/components/splash-screen';
 import { requestUserPermission } from '@/lib/permissions';
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-  const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [showApp, setShowApp] = useState(false);
   const [cameraData, setCameraData] = useState<Camera[]>([]);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch('/api/cameras');
-        if (!res.ok) throw new Error('Failed to fetch cameras');
-        const data = await res.json();
-        setCameraData(data);
-      } catch (error) {
-        console.error(error);
+    if (showApp) {
+      async function fetchData() {
+        try {
+          const res = await fetch('/api/cameras');
+          if (!res.ok) throw new Error('Failed to fetch cameras');
+          const data = await res.json();
+          setCameraData(data);
+        } catch (error) {
+          console.error(error);
+        }
       }
+      fetchData();
+      requestUserPermission();
     }
-    fetchData();
-  }, []);
+  }, [showApp]);
 
-  const handlePermissionsGranted = () => {
-    requestUserPermission();
-    setPermissionsGranted(true);
-  };
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000); // Simulate splash screen time
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading || !permissionsGranted) {
-    return <SplashScreen onComplete={handlePermissionsGranted} />;
+  if (!showApp) {
+    return <SplashScreen onComplete={() => setShowApp(true)} />;
   }
 
   return <SpeedwatchAppLoader cameras={cameraData} />;
