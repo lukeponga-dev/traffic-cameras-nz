@@ -14,30 +14,31 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchData() {
+      if (!permissionsGranted) return;
       try {
         const data = await getCameras();
         setCameraData(data);
       } catch (error) {
         console.error("Failed to fetch camera data:", error);
+      } finally {
+        setLoading(false);
       }
     }
-    if (permissionsGranted) {
-      fetchData();
-    }
+    fetchData();
   }, [permissionsGranted]);
 
   const handlePermissionsGranted = () => {
     requestUserPermission();
     setPermissionsGranted(true);
-    setLoading(false);
+    // Don't set loading to false here, wait for data to be fetched.
   };
 
   if (!permissionsGranted) {
     return <SplashScreen onComplete={handlePermissionsGranted} />;
   }
 
-  if (loading && permissionsGranted) {
-      // Still show a loading state while fetching initial data after permissions
+  // Show loader while waiting for permissions and initial data
+  if (loading) {
       return <SpeedwatchAppLoader cameras={[]} />;
   }
 

@@ -13,7 +13,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import type { Camera as CameraType, RoadEvent } from "@/lib/traffic-api";
-import { getCameras, getRoadEventsByRegion } from "@/lib/traffic-api";
+import { getRoadEventsByRegion } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -35,11 +35,10 @@ import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
 import { Input } from "./ui/input";
 
-function SpeedwatchAppInternal({ cameras: initialCameras }: SpeedwatchAppProps) {
+function SpeedwatchAppInternal({ cameras: cameraData }: SpeedwatchAppProps) {
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(null);
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
-  const [cameraData, setCameraData] = useState<CameraType[]>(initialCameras);
   const [eventData, setEventData] = useState<RoadEvent[]>([]);
   const [isCameraDrawerOpen, setIsCameraDrawerOpen] = useState(false);
 
@@ -51,11 +50,7 @@ function SpeedwatchAppInternal({ cameras: initialCameras }: SpeedwatchAppProps) 
 
   useEffect(() => {
     async function loadData() {
-        const [cameras, events] = await Promise.all([
-            getCameras(),
-            getRoadEventsByRegion('waikato') // Fetch events for Waikato region
-        ]);
-        setCameraData(cameras);
+        const events = await getRoadEventsByRegion('waikato'); // Fetch events for Waikato region
         setEventData(events);
     }
     loadData();
