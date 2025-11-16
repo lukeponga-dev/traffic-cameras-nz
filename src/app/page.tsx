@@ -2,14 +2,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getCameras, type Camera } from '@/lib/traffic-api';
 import { SpeedwatchAppLoader } from '@/components/speedwatch-app-loader';
 import { SplashScreen } from '@/components/splash-screen';
 import { requestUserPermission } from '@/lib/permissions';
+import { getCameras, type Camera } from '@/lib/traffic-api';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
+  
+  // This is no longer used to pass data, but we can keep it for future use if needed.
   const [cameraData, setCameraData] = useState<Camera[]>([]);
 
   useEffect(() => {
@@ -24,23 +26,21 @@ export default function Home() {
         setLoading(false);
       }
     }
-    fetchData();
+    if (permissionsGranted) {
+        fetchData();
+    }
   }, [permissionsGranted]);
 
   const handlePermissionsGranted = () => {
     requestUserPermission();
     setPermissionsGranted(true);
-    // Don't set loading to false here, wait for data to be fetched.
   };
 
   if (!permissionsGranted) {
     return <SplashScreen onComplete={handlePermissionsGranted} />;
   }
 
-  // Show loader while waiting for permissions and initial data
-  if (loading) {
-      return <SpeedwatchAppLoader cameras={[]} />;
-  }
-
-  return <SpeedwatchAppLoader cameras={cameraData} />;
+  // The SpeedwatchAppLoader will now show its own skeleton and load the app,
+  // which will then fetch its own data.
+  return <SpeedwatchAppLoader cameras={[]} />;
 }
