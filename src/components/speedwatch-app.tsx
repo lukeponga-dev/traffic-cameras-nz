@@ -8,44 +8,45 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { LocateFixed, X, Menu, Flag, Bell, Settings, List } from "lucide-react";
+import { LocateFixed, X } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from 'next/link';
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
   SidebarProvider,
   Sidebar,
   SidebarHeader,
-  SidebarContent,
   SidebarTrigger,
   SidebarInset,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-import { SidebarContent as AppSidebarContent } from "@/components/sidebar-content";
+import { SidebarContent } from "@/components/sidebar-content";
 import { CameraMarker } from "./camera-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
 import { Logo } from "@/components/logo";
-import { ReportDialog } from "./report-dialog";
-import { usePathname } from "next/navigation";
+import { BottomNavigation } from "./bottom-navigation";
 
 
-interface SpeedwatchAppProps {
-  cameras: CameraType[];
-}
-
+/**
+ * Main application component for SpeedWatch.
+ * This component orchestrates the map, camera markers, sidebar, and user location tracking.
+ * It's wrapped in a SidebarProvider to manage the state of the sidebar.
+ * @param {SpeedwatchAppProps} props - The props for the component.
+ * @param {CameraType[]} props.cameras - An array of camera data to display on the map.
+ */
 function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
-  const { open: isSidebarOpen } = useSidebar();
+  const { open: isSidebarOpen, setOpen: setSidebarOpen, openMobile, setOpenMobile } = useSidebar();
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(
     null
   );
@@ -57,7 +58,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   const isMobile = useIsMobile();
   const location = useGeolocation({ enableHighAccuracy: true });
 
-  // Fetch latest camera data on mount
+  // Fetch latest camera data on mount from a local API route to avoid potential CORS issues.
   useEffect(() => {
     async function fetchCameras() {
         try {
@@ -72,17 +73,35 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
     fetchCameras();
   }, []);
 
+  /**
+   * Handles clicking on a camera marker on the map.
+   * Sets the selected camera and stops following the user's location.
+   * @param {CameraType} camera - The camera that was clicked.
+   */
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
     setIsFollowingUser(false);
   };
   
+  /**
+   * Handles selecting a camera from the sidebar list.
+   * Sets the selected camera, stops following the user, and clears any active route.
+   * @param {CameraType} camera - The camera that was selected.
+   */
   const handleCameraSelect = (camera: CameraType) => {
     setSelectedCamera(camera);
     setIsFollowingUser(false);
     setDestination(null); // Clear route when a new camera is selected from the list
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   }
 
+  /**
+   * Handles selecting a place from the autocomplete search results.
+   * Pans the map to the selected place and sets it as the destination for directions.
+   * @param {google.maps.places.PlaceResult | null} place - The selected place.
+   */
   const handlePlaceSelect = useCallback((place: google.maps.places.PlaceResult | null) => {
     if (place?.geometry?.location && map && window.google) {
       map.panTo(place.geometry.location);
@@ -100,6 +119,10 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
     }
   }, [map]);
 
+  /**
+   * Sets the destination for directions to a specific camera's location.
+   * @param {CameraType} camera - The camera to get directions to.
+   */
   const handleGetDirections = (camera: CameraType) => {
      if (window.google && window.google.maps && window.google.maps.LatLng) {
         setDestination(new window.google.maps.LatLng(camera.latitude, camera.longitude));
@@ -107,12 +130,14 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
     setSelectedCamera(null); // Close the details sheet
   }
 
+  // Effect to pan the map to the user's location when following is enabled.
   useEffect(() => {
     if (isFollowingUser && map && location.latitude && location.longitude) {
       map.panTo({ lat: location.latitude, lng: location.longitude });
     }
   }, [isFollowingUser, location.latitude, location.longitude, map]);
 
+  // Effect to pan the map to the selected camera.
   useEffect(() => {
     if (selectedCamera && map) {
         map.panTo({ lat: selectedCamera.latitude, lng: selectedCamera.longitude });
@@ -120,13 +145,18 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
     }
   }, [selectedCamera, map]);
 
-
+  /**
+   * Callback to disable user following when the user interacts with the map.
+   */
   const onMapInteraction = useCallback(() => {
     if (isFollowingUser) {
       setIsFollowingUser(false);
     }
   }, [isFollowingUser]);
 
+  /**
+   * Recenter the map on the user's current location and re-enables following.
+   */
   const handleRecenter = () => {
     if (location.latitude && location.longitude && map) {
         map.panTo({lat: location.latitude, lng: location.longitude});
@@ -135,10 +165,16 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
     }
   }
 
+  /**
+   * Clears the current directions route from the map.
+   */
   const clearDirections = () => {
     setDestination(null);
   }
 
+  /**
+   * Memoized origin point for directions, based on the user's location.
+   */
   const origin = useMemo(() => {
     if (!location.latitude || !location.longitude || !window.google || !window.google.maps || !window.google.maps.LatLng)
       return null;
@@ -149,6 +185,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   }, [location.latitude, location.longitude]);
 
 
+  // Show a skeleton loader until we can determine if the user is on a mobile device.
   if (isMobile === undefined) {
     return <SpeedwatchAppSkeleton />;
   }
@@ -163,7 +200,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             <SidebarHeader>
               <Logo />
             </SidebarHeader>
-            <AppSidebarContent 
+            <SidebarContent 
                 cameras={cameraData}
                 selectedCamera={selectedCamera}
                 userLocation={{ latitude: location.latitude, longitude: location.longitude }}
@@ -211,52 +248,22 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
                     </div>
                 </MapControl>
                 <MapControl position={ControlPosition.RIGHT_BOTTOM}>
-                    <div className="flex flex-col items-end m-2 md:m-4">
+                    <div className="m-2 md:m-4 flex flex-col items-center gap-2">
                         {destination && (
-                            <Button variant="secondary" size="icon" className="mb-2 shadow-lg rounded-full" onClick={clearDirections} aria-label="Clear directions">
+                            <Button variant="secondary" size="icon" className="shadow-lg" onClick={clearDirections} aria-label="Clear directions">
                                 <X className="h-5 w-5"/>
                             </Button>
                         )}
-                        <Button variant="secondary" size="icon" className="shadow-lg rounded-full" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
+                        <Button variant="secondary" size="icon" className="shadow-lg" onClick={handleRecenter} disabled={!location.latitude} aria-label="Recenter map">
                             <LocateFixed className="h-5 w-5"/>
                         </Button>
                     </div>
                 </MapControl>
                  {isMobile && (
-                    <div className="fixed bottom-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-sm border-t z-20 md:hidden">
-                        <div className="flex justify-around items-center h-full">
-                            <SidebarTrigger className="flex-1 flex-col h-full space-y-1 rounded-none">
-                                <List className="w-5 h-5" />
-                                <span className="text-xs font-medium">Cameras</span>
-                            </SidebarTrigger>
-                            <Button asChild variant="ghost" className="flex-1 flex-col h-full space-y-1 rounded-none">
-                                <Link href="/alerts">
-                                    <Bell className="w-5 h-5" />
-                                    <span className="text-xs font-medium">Alerts</span>
-                                </Link>
-                            </Button>
-
-                            <ReportDialog 
-                                selectedCamera={selectedCamera} 
-                                userLocation={{ latitude: location.latitude, longitude: location.longitude}}
-                            >
-                                <Button variant="ghost" className="flex-1 flex-col h-full space-y-1 rounded-none">
-                                    <Flag className="w-5 h-5" />
-                                    <span className="text-xs font-medium">Report</span>
-                                </Button>
-                            </ReportDialog>
-                            
-                            <Button asChild variant="ghost" className={cn(
-                                "flex-1 flex-col h-full space-y-1 rounded-none",
-                                usePathname() === '/settings' && "text-primary"
-                                )}>
-                                <Link href="/settings">
-                                    <Settings className="w-5 h-5" />
-                                    <span className="text-xs font-medium">Settings</span>
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
+                   <BottomNavigation 
+                        selectedCamera={selectedCamera} 
+                        userLocation={{ latitude: location.latitude, longitude: location.longitude }}
+                   />
                  )}
             </div>
         </SidebarInset>
@@ -271,6 +278,14 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   );
 }
 
+interface SpeedwatchAppProps {
+    cameras: CameraType[];
+}
+
+/**
+ * A wrapper component that provides the Sidebar context to the main application.
+ * @param {SpeedwatchAppProps} props - The props for the component.
+ */
 export function SpeedwatchApp(props: SpeedwatchAppProps) {
     return (
         <SidebarProvider>
