@@ -12,7 +12,8 @@ import { LocateFixed, X, PanelLeft, ListFilter, Search } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
-import type { Camera as CameraType } from "@/lib/traffic-api";
+import type { Camera as CameraType, RoadEvent } from "@/lib/traffic-api";
+import { getCameras, getRoadEventsByRegion } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -22,6 +23,7 @@ import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 import { SidebarContent } from "@/components/sidebar-content";
 import { CameraMarker } from "./camera-marker";
+import { EventMarker } from "./event-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
@@ -33,11 +35,12 @@ import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
 import { Input } from "./ui/input";
 
-function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
+function SpeedwatchAppInternal({ cameras: initialCameras }: SpeedwatchAppProps) {
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(null);
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
-  const [cameraData, setCameraData] = useState<CameraType[]>(cameras);
+  const [cameraData, setCameraData] = useState<CameraType[]>(initialCameras);
+  const [eventData, setEventData] = useState<RoadEvent[]>([]);
   const [isCameraDrawerOpen, setIsCameraDrawerOpen] = useState(false);
 
   const map = useMap();
@@ -47,8 +50,16 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
 
   useEffect(() => {
-    setCameraData(cameras);
-  }, [cameras]);
+    async function loadData() {
+        const [cameras, events] = await Promise.all([
+            getCameras(),
+            getRoadEventsByRegion('waikato') // Fetch events for Waikato region
+        ]);
+        setCameraData(cameras);
+        setEventData(events);
+    }
+    loadData();
+  }, []);
 
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
@@ -170,6 +181,13 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
                 key={camera.id}
                 camera={camera}
                 onClick={() => handleMarkerClick(camera)}
+                />
+            ))}
+            {eventData.map((event) => (
+                <EventMarker
+                    key={event.id}
+                    event={event}
+                    onClick={() => console.log(event)}
                 />
             ))}
             <UserLocationMarker />
