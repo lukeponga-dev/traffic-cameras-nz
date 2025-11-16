@@ -80,7 +80,7 @@ export function CameraDetailsSheet({
                     <span>Coordinates</span>
                 </div>
                 <div className="font-mono text-xs text-right self-center">
-                    {camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}
+                    {camera.lat.toFixed(4)}, {camera.lon.toFixed(4)}
                 </div>
 
                 <div className="col-span-2"><Separator/></div>

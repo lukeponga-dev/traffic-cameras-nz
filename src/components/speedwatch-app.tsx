@@ -88,7 +88,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
   const handleGetDirections = (camera: CameraType) => {
     if (window.google && window.google.maps && window.google.maps.LatLng) {
-      setDestination(new window.google.maps.LatLng(camera.latitude, camera.longitude));
+      setDestination(new window.google.maps.LatLng(camera.lat, camera.lon));
     }
     setSelectedCamera(null);
   };
@@ -101,7 +101,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
   useEffect(() => {
     if (selectedCamera && map) {
-      map.panTo({ lat: selectedCamera.latitude, lng: selectedCamera.longitude });
+      map.panTo({ lat: selectedCamera.lat, lng: selectedCamera.lon });
       map.setZoom(14);
     }
   }, [selectedCamera, map]);
@@ -236,7 +236,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
       </Sheet>
 
       <CameraDetailsSheet
-        camera={selectedCamera}
+        camera={camera}
         onOpenChange={(isOpen) => {
           if (!isOpen) setSelectedCamera(null);
         }}

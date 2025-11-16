@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { getCameras, type Camera } from '@/lib/traffic-api';
@@ -21,8 +21,10 @@ export default function Home() {
         console.error("Failed to fetch camera data:", error);
       }
     }
-    fetchData();
-  }, []);
+    if (permissionsGranted) {
+      fetchData();
+    }
+  }, [permissionsGranted]);
 
   const handlePermissionsGranted = () => {
     requestUserPermission();
@@ -30,8 +32,13 @@ export default function Home() {
     setLoading(false);
   };
 
-  if (loading) {
+  if (!permissionsGranted) {
     return <SplashScreen onComplete={handlePermissionsGranted} />;
+  }
+
+  if (loading && permissionsGranted) {
+      // Still show a loading state while fetching initial data after permissions
+      return <SpeedwatchAppLoader cameras={[]} />;
   }
 
   return <SpeedwatchAppLoader cameras={cameraData} />;

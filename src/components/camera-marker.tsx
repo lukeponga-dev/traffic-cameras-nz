@@ -14,7 +14,7 @@ export function CameraMarker({ camera, onClick }: CameraMarkerProps) {
 
   return (
     <AdvancedMarker
-      position={{ lat: camera.latitude, lng: camera.longitude }}
+      position={{ lat: camera.lat, lng: camera.lon }}
       onClick={onClick}
       title={camera.name}
     >

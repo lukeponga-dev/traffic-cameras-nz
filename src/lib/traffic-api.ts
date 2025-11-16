@@ -3,65 +3,120 @@
 
 import { z } from 'zod';
 
-const CameraSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  region: z.string(),
-  latitude: z.number(),
-  longitude: z.number(),
-  imageUrl: z.string(),
-  viewUrl: z.string(),
-  description: z.string(),
-  direction: z.string(),
-  status: z.enum(['Active', 'Inactive']),
-});
+// 1. Type Definitions
 
-export type Camera = z.infer<typeof CameraSchema>;
+export interface Bounds {
+  minLat: number;
+  minLon: number;
+  maxLat: number;
+  maxLon: number;
+}
 
-async function fetchTrafficData(resource: string, params: Record<string, string> = {}) {
-  const queryString = new URLSearchParams(params).toString();
-  const url = `/api/traffic/${resource}${queryString ? `?${queryString}` : ''}`;
-  
-  const res = await fetch(url, {
-    next: { revalidate: 60 } // Revalidate every minute
-  });
+export interface Camera {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+  imageUrl: string | null;
+  region?: string;
+  road?: string;
+  updatedAt?: string;
+  status: 'Active' | 'Inactive';
+  direction: string;
+  description: string;
+}
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${resource}: ${res.statusText}`);
-  }
-  return res.json();
+export interface RoadEvent {
+  id: string;
+  type: string;
+  severity: string;
+  title: string;
+  description: string;
+  lat?: number;
+  lon?: number;
+  road?: string;
+  startTime?: string;
+  endTime?: string;
+  status?: string;
+}
+
+// 2. Normalizers
+
+function normalizeCamera(cam: any): Camera {
+    const props = cam.properties;
+    const coords = cam.geometry.coordinates;
+    return {
+        id: props.id,
+        name: props.name || props.description,
+        lat: coords[1],
+        lon: coords[0],
+        imageUrl: props.imageUrl ? `https://www.trafficnz.info${props.imageUrl}` : null,
+        region: props['region/name'] || 'N/A',
+        road: props.highway || null,
+        updatedAt: cam.lastModified || null,
+        status: props.offline === 'false' ? 'Active' : 'Inactive',
+        direction: props.direction,
+        description: props.description,
+    };
+}
+
+function normalizeEvent(evt: any): RoadEvent {
+    const props = evt.properties;
+    const coords = evt.geometry.coordinates;
+    return {
+        id: props.id || evt.eventId,
+        type: props.type || props.category,
+        severity: props.severity || 'unknown',
+        title: props.title || props.summary,
+        description: props.description || '',
+        lat: coords ? coords[1] : undefined,
+        lon: coords ? coords[0] : undefined,
+        road: props.road || props.route || null,
+        startTime: props.startTime || null,
+        endTime: props.endTime || null,
+        status: props.status || 'active'
+    };
 }
 
 
-export async function getCameras(): Promise<Camera[]> {
+// 3. Client Fetcher
+
+async function fetchWithFallback<T>(resource: string, params: Record<string, string> = {}): Promise<T[]> {
+  const queryString = new URLSearchParams(params).toString();
+  const url = `/api/traffic/${resource}${queryString ? `?${queryString}` : ''}`;
+
   try {
-    const data = await fetchTrafficData('camera/all');
+    const resp = await fetch(url, {
+        next: { revalidate: 60 } // Revalidate every minute
+    });
+    if (!resp.ok) {
+        throw new Error(`Upstream ${resp.status}`);
+    }
+    const raw = await resp.json();
     
-    if (!data || !data.features) {
-      console.error('Unexpected data structure from API. Full result:', JSON.stringify(data, null, 2));
-      return [];
+    if (raw && raw.features && Array.isArray(raw.features)) {
+        return raw.features;
     }
 
-    return data.features.map((feature: any) => {
-      const props = feature.properties;
-      const coords = feature.geometry.coordinates;
-
-      return {
-        id: props.id,
-        name: props.name,
-        region: props['region/name'] || 'N/A',
-        latitude: coords[1],
-        longitude: coords[0],
-        imageUrl: `https://www.trafficnz.info${props.imageUrl}`,
-        viewUrl: `https://www.trafficnz.info${props.imageUrl}`,
-        description: props.description,
-        direction: props.direction,
-        status: props.offline === 'false' ? 'Active' : 'Inactive',
-      };
-    }).filter((c: any): c is Camera => c !== null);
-    
-  } catch (error) {
-    console.error('Error fetching cameras:', error);
-    return []; // Return empty array on error to prevent app crashes.
+    return Array.isArray(raw) ? raw : [];
+  } catch (err) {
+    console.warn(`Fallback triggered for ${resource}:`, err);
+    return []; // Return empty array on error
   }
+}
+
+export async function getCameras(): Promise<Camera[]> {
+    const raw = await fetchWithFallback<any[]>('camera/all');
+    return raw.map(normalizeCamera);
+}
+
+export async function getCamerasWithinBounds(bounds: Bounds): Promise<Camera[]> {
+    const qs = new URLSearchParams(bounds as any).toString();
+    const raw = await fetchWithFallback<any[]>(`findCamerasWithinBounds?${qs}`);
+    return raw.map(normalizeCamera);
+}
+
+export async function getRoadEventsByRegion(region: string): Promise<RoadEvent[]> {
+    const raw = await fetchWithFallback<any[]>(`findRoadEventsByRegion?region=${region}`);
+    return raw.map(normalizeEvent);
 }
