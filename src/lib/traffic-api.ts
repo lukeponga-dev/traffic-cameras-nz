@@ -11,21 +11,24 @@ const CameraSchema = z.object({
   viewUrl: z.string(),
   description: z.string(),
   direction: z.string(),
+  status: z.enum(['Active', 'Inactive']),
 });
 
 export type Camera = z.infer<typeof CameraSchema>;
 
-// Helper function to extract text from XML-JS nodes
 const getText = (node: any): string => (node && node._text ? node._text.toString() : '');
 
 export async function getCameras(): Promise<Camera[]> {
   try {
+    // This function fetches camera data from the NZTA traffic API.
+    // It has a revalidation period of 5 minutes to ensure data is fresh.
     const res = await fetch(
       'https://trafficnz.info/service/traffic/rest/4/cameras/all',
       {
         next: { revalidate: 300 }, // Revalidate every 5 minutes
       }
     );
+
     if (!res.ok) {
       throw new Error(`Failed to fetch camera data: ${res.statusText}`);
     }
@@ -64,10 +67,13 @@ export async function getCameras(): Promise<Camera[]> {
             viewUrl: `https://trafficnz.info${getText(cam.imageUrl)}`,
             description: getText(cam.description),
             direction: getText(cam.direction),
+            // The API doesn't provide a status, so we'll mock it for now.
+            // In a real application, this would come from the API.
+            status: Math.random() > 0.1 ? 'Active' : 'Inactive',
         }
     }).filter((c): c is Camera => c !== null);
   } catch (error) {
     console.error('Error fetching cameras:', error);
-    return []; // Return empty array on error
+    return []; // Return empty array on error to prevent app crashes.
   }
 }

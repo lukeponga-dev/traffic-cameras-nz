@@ -12,7 +12,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: 'SpeedWatch',
-  description: 'Community-powered speed camera alerts.',
+  description: 'Stay aware. Drive safe.',
   manifest: '/manifest.json',
 };
 
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#3F51B5" />
+        <meta name="theme-color" content="#18181B" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className={`${poppins.variable} font-body antialiased`}>

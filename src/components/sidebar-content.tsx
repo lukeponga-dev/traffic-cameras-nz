@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { Camera, Search, X } from 'lucide-react';
+import { Camera, Search, X, ListFilter } from 'lucide-react';
 
 import type { Camera as CameraType } from '@/lib/traffic-api';
 import {
@@ -14,11 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { ReportDialog } from '@/components/report-dialog';
 import { cn } from '@/lib/utils';
-import { PlaceAutocomplete } from './place-autocomplete';
 
 
 interface SidebarContentProps {
@@ -26,12 +22,11 @@ interface SidebarContentProps {
     selectedCamera: CameraType | null;
     userLocation: { latitude: number | null, longitude: number | null };
     onCameraSelect: (camera: CameraType) => void;
-    onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
     isMobile: boolean;
 }
 
 
-export function SidebarContent({ cameras, selectedCamera, userLocation, onCameraSelect, onPlaceSelect, isMobile }: SidebarContentProps) {
+export function SidebarContent({ cameras, selectedCamera, userLocation, onCameraSelect, isMobile }: SidebarContentProps) {
     const [searchTerm, setSearchTerm] = React.useState('');
   
     const groupedCameras = React.useMemo(() => {
@@ -71,7 +66,6 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
             const region = cameras.find(c => c.id === selectedCamera.id)?.region;
             if(region) return [region];
         }
-        // If not searching, open the first region by default
         if(!searchTerm && regions.length > 0) {
             return [regions[0]];
         }
@@ -81,7 +75,6 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
     const content = (
         <>
             <div className="p-4 border-b space-y-4">
-                <PlaceAutocomplete onPlaceSelect={onPlaceSelect} />
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     <Input
@@ -135,18 +128,6 @@ export function SidebarContent({ cameras, selectedCamera, userLocation, onCamera
                     </div>
                 )}
             </ScrollArea>
-           {!isMobile && (
-             <>
-                <Separator />
-                <div className="p-4 flex items-center justify-between">
-                    <ReportDialog 
-                        selectedCamera={selectedCamera}
-                        userLocation={userLocation}
-                    />
-                    <ThemeToggle />
-                </div>
-             </>
-           )}
         </>
     );
 

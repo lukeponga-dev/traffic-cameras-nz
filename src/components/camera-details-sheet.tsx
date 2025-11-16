@@ -11,14 +11,17 @@ import {
 } from "@/components/ui/sheet";
 import type { Camera } from "@/lib/traffic-api";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Compass, Route } from "lucide-react";
+import { MapPin, Compass, Route, AlertTriangle, Star } from "lucide-react";
 import Image from 'next/image';
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { ReportDialog } from "./report-dialog";
 
 interface CameraDetailsSheetProps {
   camera: Camera | null;
   onOpenChange: (open: boolean) => void;
   onGetDirections: (camera: Camera) => void;
+  userLocation: { latitude: number | null; longitude: number | null };
 }
 
 /**
@@ -29,6 +32,7 @@ export function CameraDetailsSheet({
   camera,
   onOpenChange,
   onGetDirections,
+  userLocation
 }: CameraDetailsSheetProps) {
   return (
     <Sheet open={!!camera} onOpenChange={onOpenChange}>
@@ -36,9 +40,9 @@ export function CameraDetailsSheet({
         {camera && (
           <>
             <div className="relative h-48 w-full">
-                {camera.viewUrl ? (
+                {camera.imageUrl ? (
                     <Image
-                        src={camera.viewUrl}
+                        src={camera.imageUrl}
                         alt={`Street view of ${camera.name}`}
                         data-ai-hint="road street"
                         fill
@@ -61,6 +65,16 @@ export function CameraDetailsSheet({
             </SheetHeader>
             <div className="flex-1 overflow-y-auto px-6 pb-6">
               <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+                 <div className="flex items-center gap-2 text-muted-foreground">
+                    <AlertTriangle className="w-5 h-5 text-primary"/>
+                    <span>Status</span>
+                </div>
+                 <Badge variant={camera.status === 'Active' ? 'default' : 'destructive'} className="justify-self-end">
+                    {camera.status}
+                </Badge>
+
+                <div className="col-span-2"><Separator/></div>
+
                 <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="w-5 h-5 text-primary"/>
                     <span>Coordinates</span>
@@ -79,10 +93,23 @@ export function CameraDetailsSheet({
                 
               </div>
             </div>
-             <SheetFooter className="p-4 border-t bg-background mt-auto sticky bottom-0">
+             <SheetFooter className="p-4 border-t bg-background mt-auto sticky bottom-0 grid grid-cols-3 gap-2">
+                <Button variant="outline">
+                    <Star className="mr-2 h-4 w-4" />
+                    Favorite
+                </Button>
+                <ReportDialog 
+                  selectedCamera={camera} 
+                  userLocation={userLocation}
+                >
+                  <Button variant="outline" className="w-full">
+                    <AlertTriangle className="mr-2 h-4 w-4" />
+                    Report
+                  </Button>
+                </ReportDialog>
                 <Button onClick={() => onGetDirections(camera)} className="w-full">
                     <Route className="mr-2 h-4 w-4" />
-                    Get Directions
+                    Directions
                 </Button>
             </SheetFooter>
           </>

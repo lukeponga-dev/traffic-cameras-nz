@@ -10,6 +10,7 @@ interface CameraMarkerProps {
 }
 
 export function CameraMarker({ camera, onClick }: CameraMarkerProps) {
+  const isOnline = camera.status === "Active";
 
   return (
     <AdvancedMarker
@@ -18,7 +19,7 @@ export function CameraMarker({ camera, onClick }: CameraMarkerProps) {
       title={camera.name}
     >
       <Pin
-        background={"hsl(var(--primary))"}
+        background={isOnline ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
         borderColor={"hsl(var(--primary-foreground))"}
         glyphColor={"hsl(var(--primary-foreground))"}
       />

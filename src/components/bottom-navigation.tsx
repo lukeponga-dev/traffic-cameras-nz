@@ -2,76 +2,53 @@
 "use client";
 
 import * as React from "react";
-import { List, Flag, Settings, Bell } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Map, BarChart2, Bell, Settings, List } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { ReportDialog } from "./report-dialog";
-import type { Camera } from "@/lib/traffic-api";
-import { Separator } from "./ui/separator";
+import { cn } from "@/lib/utils";
 
 interface BottomNavigationProps {
-  children: React.ReactNode;
-  selectedCamera: Camera | null;
-  userLocation: { latitude: number | null; longitude: number | null };
   onCameraListToggle: () => void;
-  isCameraDrawerOpen: boolean;
 }
 
-export function BottomNavigation({ 
-    children, 
-    selectedCamera, 
-    userLocation,
-    onCameraListToggle,
-    isCameraDrawerOpen
-}: BottomNavigationProps) {
-  
+export function BottomNavigation({ onCameraListToggle }: BottomNavigationProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const navItems = [
+    { href: "/", label: "Map", icon: Map },
+    { href: "/stats", label: "Stats", icon: BarChart2 },
+    { href: "/alerts", label: "Alerts", icon: Bell },
+    { href: "/settings", label: "Settings", icon: Settings },
+  ];
+
   return (
-    <>
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-20 md:hidden">
-        <div className="flex justify-around items-center h-full">
-          <Button variant="ghost" className="flex-1 flex-col h-full space-y-1" onClick={onCameraListToggle}>
-            <List className="w-5 h-5" />
-            <span className="text-xs">Cameras</span>
-          </Button>
+    <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-20 md:hidden">
+      <div className="flex justify-around items-center h-full">
+        <Button
+          variant="ghost"
+          className="flex-1 flex-col h-full space-y-1"
+          onClick={onCameraListToggle}
+        >
+          <List className="w-5 h-5" />
+          <span className="text-xs">Cameras</span>
+        </Button>
 
-          <Button variant="ghost" className="flex-1 flex-col h-full space-y-1">
-            <Bell className="w-5 h-5" />
-            <span className="text-xs">Alerts</span>
-          </Button>
-
-          <ReportDialog 
-            selectedCamera={selectedCamera} 
-            userLocation={userLocation}
+        {navItems.map((item) => (
+          <Button
+            key={item.href}
+            variant="ghost"
+            className={cn(
+              "flex-1 flex-col h-full space-y-1",
+              pathname === item.href && "text-primary"
+            )}
+            onClick={() => router.push(item.href)}
           >
-             <Button variant="ghost" className="flex-1 flex-col h-full space-y-1">
-                <Flag className="w-5 h-5" />
-                <span className="text-xs">Report</span>
-            </Button>
-          </ReportDialog>
-          
-          <Button variant="ghost" className="flex-1 flex-col h-full space-y-1">
-            <Settings className="w-5 h-5" />
-            <span className="text-xs">Settings</span>
+            <item.icon className="w-5 h-5" />
+            <span className="text-xs">{item.label}</span>
           </Button>
-        </div>
+        ))}
       </div>
-      
-      <Sheet open={isCameraDrawerOpen} onOpenChange={onCameraListToggle}>
-        <SheetContent side="bottom" className="h-[80dvh] flex flex-col p-0 z-30">
-            <SheetHeader className="p-4">
-                <SheetTitle>Cameras</SheetTitle>
-            </SheetHeader>
-            <Separator />
-            <div className="flex-1 min-h-0">
-                {children}
-            </div>
-        </SheetContent>
-      </Sheet>
-    </>
+    </div>
   );
 }

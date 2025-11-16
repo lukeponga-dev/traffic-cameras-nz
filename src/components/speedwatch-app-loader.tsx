@@ -14,5 +14,8 @@ interface SpeedwatchAppLoaderProps {
 }
 
 export function SpeedwatchAppLoader({ cameras }: SpeedwatchAppLoaderProps) {
+    if (typeof window === 'undefined') {
+        return <SpeedwatchAppSkeleton />;
+    }
     return <SpeedwatchApp cameras={cameras} />;
 }
