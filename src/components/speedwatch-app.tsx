@@ -8,7 +8,7 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { LocateFixed, X, ListFilter } from "lucide-react";
+import { LocateFixed, X } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 import type { Camera as CameraType } from "@/lib/traffic-api";
@@ -150,9 +150,6 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
               <div className="mt-2 md:mt-4 w-full px-2 md:px-4">
                 <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border w-full max-w-md mx-auto">
                     <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
-                    <Button variant="outline" size="icon">
-                      <ListFilter className="h-4 w-4"/>
-                    </Button>
                 </div>
               </div>
             </MapControl>
