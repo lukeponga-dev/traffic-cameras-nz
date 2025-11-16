@@ -18,8 +18,9 @@ export type Camera = z.infer<typeof CameraSchema>;
 
 export async function getCameras(): Promise<Camera[]> {
   try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002';
     const res = await fetch(
-      '/api/cameras', 
+      `${baseUrl}/api/cameras`, 
       {
         next: { revalidate: 300 }, // Revalidate every 5 minutes
       }
