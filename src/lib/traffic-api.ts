@@ -19,27 +19,31 @@ export type Camera = z.infer<typeof CameraSchema>;
 
 const getText = (node: any): string => (node && node._text ? node._text.toString() : '');
 
-export async function getCameras(): Promise<Camera[]> {
+export async function getCameras(xmlText?: string): Promise<Camera[]> {
   try {
-    // This function fetches camera data from the NZTA traffic API.
-    // It has a revalidation period of 5 minutes to ensure data is fresh.
-    const res = await fetch(
-      '/api/cameras',
-      {
-        next: { revalidate: 300 }, // Revalidate every 5 minutes
-      }
-    );
+    let data = xmlText;
+    if (!data) {
+      // This function fetches camera data from the NZTA traffic API.
+      // It has a revalidation period of 5 minutes to ensure data is fresh.
+      const res = await fetch(
+        '/api/cameras',
+        {
+          next: { revalidate: 300 }, // Revalidate every 5 minutes
+        }
+      );
 
-    if (!res.ok) {
-      throw new Error(`Failed to fetch camera data: ${res.statusText}`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch camera data: ${res.statusText}`);
+      }
+      data = await res.text();
     }
-    const xmlText = await res.text();
-    if (!xmlText) {
+    
+    if (!data) {
         console.error('API returned empty response');
         return [];
     }
 
-    const result = convert.xml2js(xmlText, { compact: true, spaces: 2 });
+    const result = convert.xml2js(data, { compact: true, spaces: 2 });
     
     const cameraList = (result as any)?.response?.cameras?.camera;
 

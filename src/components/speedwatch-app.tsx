@@ -28,7 +28,7 @@ import { UserLocationMarker } from "./user-location-marker";
 import { Directions } from "./directions";
 import { Logo } from "@/components/logo";
 import { BottomNavigation } from "./bottom-navigation";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
 
@@ -50,7 +50,11 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
       try {
         const res = await fetch("/api/cameras");
         if (!res.ok) throw new Error("Failed to fetch cameras");
-        const data = await res.json();
+        const xmlText = await res.text();
+        // This is a workaround to parse the data on the client.
+        // Ideally this would be done on the server.
+        const { getCameras: parseCameras } = await import('@/lib/traffic-api');
+        const data = await parseCameras(xmlText);
         setCameraData(data);
       } catch (error) {
         console.error(error);
