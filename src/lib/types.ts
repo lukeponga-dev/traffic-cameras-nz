@@ -1,3 +1,4 @@
+
 export type CameraType = 'Fixed' | 'Average' | 'Mobile' | 'Red light';
 export type CameraStatus = 'Active' | 'Inactive' | 'Offline';
 
