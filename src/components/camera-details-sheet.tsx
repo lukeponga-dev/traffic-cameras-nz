@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import type { Camera } from "@/lib/traffic-api";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Compass, Route, AlertTriangle, Star, Car, Globe } from "lucide-react";
+import { MapPin, Compass, Route, AlertTriangle, Star } from "lucide-react";
 import Image from 'next/image';
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -74,23 +74,6 @@ export function CameraDetailsSheet({
                 </Badge>
 
                 <div className="col-span-2"><Separator/></div>
-                
-                 <div className="flex items-center gap-2 text-muted-foreground">
-                    <Globe className="w-5 h-5 text-primary"/>
-                    <span>Region</span>
-                </div>
-                <div className="font-semibold text-right self-center">{camera.region}</div>
-
-                <div className="col-span-2"><Separator/></div>
-                
-                 <div className="flex items-center gap-2 text-muted-foreground">
-                    <Car className="w-5 h-5 text-primary"/>
-                    <span>Road</span>
-                </div>
-                <div className="font-semibold text-right self-center">{camera.road}</div>
-
-                <div className="col-span-2"><Separator/></div>
-
 
                 <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="w-5 h-5 text-primary"/>
@@ -135,4 +118,3 @@ export function CameraDetailsSheet({
     </Sheet>
   );
 }
-
