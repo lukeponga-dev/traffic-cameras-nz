@@ -1,13 +1,14 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface GeolocationState {
   latitude: number | null;
   longitude: number | null;
   error: string | null;
   isAvailable: boolean;
+  loading: boolean;
 }
 
 export function useGeolocation(options: PositionOptions = {}) {
@@ -16,11 +17,35 @@ export function useGeolocation(options: PositionOptions = {}) {
     longitude: null,
     error: null,
     isAvailable: false,
+    loading: true,
   });
+
+  const refreshLocation = useCallback(() => {
+    if (!location.isAvailable) return;
+
+    setLocation(l => ({ ...l, loading: true }));
+
+    const onSuccess = (position: GeolocationPosition) => {
+      setLocation({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        error: null,
+        isAvailable: true,
+        loading: false,
+      });
+    };
+
+    const onError = (error: GeolocationPositionError) => {
+      setLocation(l => ({ ...l, error: error.message, loading: false }));
+    };
+
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, options);
+  }, [location.isAvailable, options]);
+
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
-        setLocation(l => ({ ...l, error: 'Geolocation is not supported by your browser.', isAvailable: false }));
+        setLocation(l => ({ ...l, error: 'Geolocation is not supported by your browser.', isAvailable: false, loading: false }));
         return;
     }
 
@@ -32,14 +57,14 @@ export function useGeolocation(options: PositionOptions = {}) {
         longitude: position.coords.longitude,
         error: null,
         isAvailable: true,
+        loading: false,
       });
     };
 
     const onError = (error: GeolocationPositionError) => {
-      setLocation(l => ({ ...l, error: error.message }));
+      setLocation(l => ({ ...l, error: error.message, loading: false }));
     };
     
-    // Get current position once
     navigator.geolocation.getCurrentPosition(onSuccess, onError, options);
     
     const watchId = navigator.geolocation.watchPosition(onSuccess, onError, options);
@@ -48,5 +73,5 @@ export function useGeolocation(options: PositionOptions = {}) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return location;
+  return { ...location, refreshLocation };
 }
