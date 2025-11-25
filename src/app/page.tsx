@@ -1,9 +1,9 @@
-"use client";
+'use client';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Camera, fetchCameras } from '@/lib/traffic-api';
-import { Sidebar } from '@/components/ui/sidebar';
-import SidebarContent from '@/components/sidebar-content';
+import { Camera, getCameras } from '@/lib/traffic-api';
+import { Sidebar, SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarContent } from '@/components/sidebar-content';
 import SpeedWatchApp from '@/components/speedwatch-app';
 import SpeedwatchAppSkeleton from '@/components/speedwatch-app-skeleton';
 
@@ -18,17 +18,17 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getCameras = async () => {
+    const initCameras = async () => {
       try {
-        const cameras = await fetchCameras();
+        const cameras = await getCameras();
         setCameras(cameras);
       } catch (error) {
-        console.error("Failed to fetch cameras:", error);
+        console.error('Failed to fetch cameras:', error);
       } finally {
         setLoading(false);
       }
     };
-    getCameras();
+    initCameras();
   }, []);
 
   const handleCameraSelect = (camera: Camera) => {
@@ -41,12 +41,14 @@ export default function Home() {
 
   return (
     <SpeedWatchApp>
+      <SidebarProvider>
         <Sidebar>
-            <SidebarContent cameras={cameras} onCameraSelect={handleCameraSelect} />
+          <SidebarContent cameras={cameras} onCameraSelect={handleCameraSelect} />
         </Sidebar>
-        <div className="flex-1">
-            <CameraMap cameras={cameras} selectedCamera={selectedCamera} />
-        </div>
+      </SidebarProvider>
+      <div className="flex-1">
+        <CameraMap cameras={cameras} selectedCamera={selectedCamera} />
+      </div>
     </SpeedWatchApp>
   );
 }
