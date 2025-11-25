@@ -28,25 +28,10 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(null);
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
-  const [cameraData, setCameraData] = useState<CameraType[]>(cameras);
 
   const map = useMap();
   const isMobile = useIsMobile();
   const location = useGeolocation({ enableHighAccuracy: true });
-
-  useEffect(() => {
-    async function fetchCameras() {
-      try {
-        const res = await fetch("/api/cameras");
-        if (!res.ok) throw new Error("Failed to fetch cameras");
-        const data = await res.json();
-        setCameraData(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchCameras();
-  }, []);
 
   const handleMarkerClick = (camera: CameraType) => {
     setSelectedCamera(camera);
@@ -133,7 +118,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             onZoomChanged={onMapInteraction}
             onBoundsChanged={onMapInteraction}
             >
-            {cameraData.map((camera) => (
+            {cameras.map((camera) => (
                 <CameraMarker
                 key={camera.id}
                 camera={camera}

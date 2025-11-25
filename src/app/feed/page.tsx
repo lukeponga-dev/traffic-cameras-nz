@@ -3,37 +3,48 @@
 
 import { BottomNavigation } from "@/components/bottom-navigation";
 import type { Camera } from "@/lib/traffic-api";
-import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import TrafficCamera from "@/components/traffic-camera";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+interface FeedPageProps {
+  cameras: Camera[] | undefined;
+  onRefresh: () => void;
+}
 
-export default function FeedPage() {
-  const { data: cameras, error, mutate } = useSWR<Camera[]>("/api/cameras", fetcher);
-
+export default function FeedPage({ cameras, onRefresh }: FeedPageProps) {
   return (
     <div className="bg-background min-h-screen">
       <header className="p-4 border-b sticky top-0 bg-background z-10 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-center">Live Feed</h1>
-        <Button variant="ghost" size="icon" onClick={() => mutate()}>
+        <h1 className="text-xl font-bold">Live Feed</h1>
+        <Button variant="ghost" size="icon" onClick={onRefresh} aria-label="Refresh feed">
           <RefreshCw className="h-5 w-5" />
         </Button>
       </header>
-      <main className="p-4">
-        {error && <p className="text-center text-red-500">Failed to load cameras</p>}
-        {!cameras && !error && <p className="text-center text-muted-foreground">Loading...</p>}
-        <div className="grid gap-4">
+      <main className="p-4 pb-20">
+        {!cameras && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <div className="h-6 bg-muted rounded w-3/4 animate-pulse" />
+                </CardHeader>
+                <CardContent>
+                  <div className="aspect-video bg-muted rounded-md animate-pulse" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {cameras?.map((camera) => (
             <Card key={camera.id}>
               <CardHeader>
                 <CardTitle>{camera.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="aspect-video bg-gray-200 rounded-md flex items-center justify-center">
-                  <p className="text-muted-foreground">Live feed coming soon</p>
-                </div>
+                <TrafficCamera camera={camera} />
               </CardContent>
             </Card>
           ))}
