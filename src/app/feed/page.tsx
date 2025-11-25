@@ -1,21 +1,9 @@
-
-'use client';
-
 import { BottomNavigation } from '@/components/bottom-navigation';
 import { TrafficCameraFeed } from '@/components/traffic-camera-feed';
-import { getCameras, type Camera } from '@/lib/traffic-api';
-import { useEffect, useState } from 'react';
+import { fetchAndProcessCameras } from '@/lib/traffic-api';
 
-export default function FeedPage() {
-  const [cameras, setCameras] = useState<Camera[]>([]);
-
-  useEffect(() => {
-    async function fetchCameras() {
-      const fetchedCameras = await getCameras();
-      setCameras(fetchedCameras);
-    }
-    fetchCameras();
-  }, []);
+export default async function FeedPage() {
+  const cameras = await fetchAndProcessCameras();
 
   return (
     <div className="bg-background min-h-screen">

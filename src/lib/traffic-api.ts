@@ -21,7 +21,10 @@ export type Camera = z.infer<typeof CameraSchema>;
 // To be used by client components, fetches from the API route
 export async function getCameras(): Promise<Camera[]> {
   try {
-    const res = await fetch('/api/cameras');
+    // If running on the server (during pre-rendering), use an absolute URL.
+    // If running on the client, use a relative URL.
+    const baseUrl = typeof window === 'undefined' ? 'http://127.0.0.1:3000' : '';
+    const res = await fetch(`${baseUrl}/api/cameras`);
     if (!res.ok) {
       throw new Error('Failed to fetch cameras');
     }

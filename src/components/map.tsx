@@ -1,47 +1,34 @@
-
 "use client";
 
 import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import type { Camera } from "@/lib/traffic-api";
-import L from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-
-// Fix for default marker icon issue with webpack
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-// @ts-ignore
-delete L.Icon.Default.prototype._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x.src,
-  iconUrl: markerIcon.src,
-  shadowUrl: markerShadow.src,
-});
-
+import { MapContainer, TileLayer } from "react-leaflet";
+import CameraMarker from "@/components/camera-marker";
+import UserLocationMarker from "@/components/user-location-marker";
+import Directions from "@/components/directions";
 
 interface CameraMapProps {
-    cameras: Camera[];
+  cameras: Camera[];
+  selectedCamera: Camera | null;
 }
 
-export default function CameraMap({ cameras }: CameraMapProps) {
+export default function CameraMap({ cameras, selectedCamera }: CameraMapProps) {
   return (
-    <MapContainer center={[-41.2865, 174.7762]} zoom={6} style={{ height: "100vh", width: "100%" }}>
+    <MapContainer
+      center={[-41.2865, 174.7762]}
+      zoom={6}
+      style={{ height: "100vh", width: "100%" }}
+    >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {cameras.map(camera => (
-        <Marker key={camera.id} position={[camera.latitude, camera.longitude]}>
-          <Popup>
-            <div style={{ width: "280px" }}>
-              <h4 style={{ marginBottom: "8px" }}>{camera.name}</h4>
-              <img src={`https://trafficnz.info${camera.imageUrl}`} alt={camera.name} style={{ width:"100%", height:"auto" }} />
-            </div>
-          </Popup>
-        </Marker>
+      <UserLocationMarker />
+      {cameras.map((camera) => (
+        <CameraMarker key={camera.id} camera={camera} />
       ))}
+      {selectedCamera && <Directions selectedCamera={selectedCamera} />}
     </MapContainer>
   );
 }

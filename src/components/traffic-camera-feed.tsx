@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -17,7 +16,7 @@ export function TrafficCameraFeed({ camera }: TrafficCameraFeedProps) {
         <p className="font-semibold mb-2">{camera.name}</p>
         {!error ? (
           <img
-            src={camera.viewUrl}
+            src={camera.imageUrl} // Use imageUrl instead of viewUrl
             alt={`${camera.name} feed`}
             onError={() => setError(true)}
             className="w-full rounded-md object-cover"

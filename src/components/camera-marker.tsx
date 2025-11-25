@@ -1,28 +1,40 @@
+'use client';
 
-"use client";
+import { Marker, Popup } from 'react-leaflet';
+import { Camera } from '@/lib/types';
+import L from 'leaflet';
 
-import { AdvancedMarker, Pin } from "@vis.gl/react-google-maps";
-import type { Camera } from "@/lib/traffic-api";
+// Fix for default marker icon issue with webpack
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// @ts-ignore
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x.src,
+  iconUrl: markerIcon.src,
+  shadowUrl: markerShadow.src,
+});
 
 interface CameraMarkerProps {
   camera: Camera;
-  onClick: () => void;
 }
 
-export function CameraMarker({ camera, onClick }: CameraMarkerProps) {
-  const isOnline = camera.status === "Active";
-
+export default function CameraMarker({ camera }: CameraMarkerProps) {
   return (
-    <AdvancedMarker
-      position={{ lat: camera.latitude, lng: camera.longitude }}
-      onClick={onClick}
-      title={camera.name}
-    >
-      <Pin
-        background={isOnline ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
-        borderColor={"hsl(var(--primary-foreground))"}
-        glyphColor={"hsl(var(--primary-foreground))"}
-      />
-    </AdvancedMarker>
+    <Marker position={[camera.latitude, camera.longitude]}>
+      <Popup>
+        <div style={{ width: '280px' }}>
+          <h4 style={{ marginBottom: '8px' }}>{camera.name}</h4>
+          <img
+            src={`https://trafficnz.info${camera.imageUrl}`}
+            alt={camera.name}
+            style={{ width: '100%', height: 'auto' }}
+          />
+        </div>
+      </Popup>
+    </Marker>
   );
 }
