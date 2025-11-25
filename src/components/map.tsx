@@ -1,6 +1,5 @@
 "use client";
 
-import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import type { Camera } from "@/lib/traffic-api";
 import { MapContainer, TileLayer } from "react-leaflet";
