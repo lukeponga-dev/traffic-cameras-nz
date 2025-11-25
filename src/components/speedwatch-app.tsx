@@ -167,6 +167,13 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </div>
             </MapControl>
 
+            <MapControl position={ControlPosition.LEFT_BOTTOM}>
+              <div className="m-2 md:m-4 bg-card/80 backdrop-blur-sm rounded-lg p-2 shadow-md border max-w-md">
+                <p className='text-xs font-mono'>Lat: {location.latitude?.toFixed(4)}</p>
+                <p className='text-xs font-mono'>Lng: {location.longitude?.toFixed(4)}</p>
+              </div>
+            </MapControl>
+
             <BottomNavigation />
         </main>
 
