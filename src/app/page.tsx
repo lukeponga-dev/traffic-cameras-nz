@@ -1,46 +1,42 @@
+
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Camera } from '@/lib/traffic-api';
-import { SplashScreen } from '@/components/splash-screen';
-import { requestUserPermission } from '@/lib/permissions';
-import { SpeedwatchApp } from '@/components/speedwatch-app';
-import { SpeedwatchAppSkeleton } from '@/components/speedwatch-app-skeleton';
-import { MapProvider } from '@/app/map-provider';
+import { Logo } from "@/components/logo";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const [showApp, setShowApp] = useState(false);
-  const [cameraData, setCameraData] = useState<Camera[] | undefined>(undefined);
-
-  const fetchData = useCallback(async () => {
-    try {
-      const res = await fetch('/api/cameras');
-      if (!res.ok) throw new Error('Failed to fetch cameras');
-      const data = await res.json();
-      setCameraData(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (showApp) {
-      fetchData();
-      requestUserPermission();
-    }
-  }, [showApp, fetchData]);
-
-  if (!showApp) {
-    return <SplashScreen onComplete={() => setShowApp(true)} />;
-  }
-
-  if (!cameraData) {
-    return <SpeedwatchAppSkeleton />;
-  }
-
+export default function LandingPage() {
+  const router = useRouter();
   return (
-    <MapProvider>
-      <SpeedwatchApp cameras={cameraData} />
-    </MapProvider>
+    <div className="min-h-screen bg-background flex flex-col justify-between p-6">
+      <header className="flex justify-start">
+        <Logo />
+      </header>
+
+      <main className="flex-grow flex flex-col items-center justify-center text-center space-y-6">
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">
+            Welcome to SpeedWatch
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Stay aware. Drive safe.
+          </p>
+        </div>
+
+        <Button 
+          size="lg" 
+          className="group transition-transform duration-300 ease-in-out hover:scale-105" 
+          onClick={() => router.push('/map')}
+        >
+          View Live Camera Map
+          <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
+        </Button>
+      </main>
+
+      <footer className="text-center text-sm text-muted-foreground">
+        <p>&copy; {new Date().getFullYear()} SpeedWatch. All rights reserved.</p>
+      </footer>
+    </div>
   );
 }
