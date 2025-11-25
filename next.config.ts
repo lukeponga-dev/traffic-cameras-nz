@@ -21,7 +21,7 @@
               headers: [
                 {
                   key: 'Permissions-Policy',
-                  value: 'geolocation=*, clipboard-read=*, clipboard-write=(self)',
+                  value: 'geolocation=*, clipboard-read=*, clipboard-write=*',
                 },
               ],
             },

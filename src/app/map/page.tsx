@@ -12,7 +12,7 @@ const CameraMap = dynamic(() => import('@/components/map'), {
     loading: () => <SpeedwatchAppSkeleton />
 });
 
-export default function Home() {
+export default function MapPage() {
   const [showApp, setShowApp] = useState(false);
   const [cameraData, setCameraData] = useState<Camera[] | undefined>(undefined);
 

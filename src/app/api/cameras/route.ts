@@ -20,6 +20,8 @@ export async function GET() {
     }
 
     if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`External API returned an error: ${res.status} ${res.statusText}`, errorText);
       return new NextResponse(`External API returned an error: ${res.statusText}`, {
         status: res.status,
       });
@@ -27,19 +29,33 @@ export async function GET() {
 
     const xmlText = await res.text();
     if (!xmlText) {
+      console.error('API returned empty response');
       return new NextResponse('API returned empty response', { status: 500 });
     }
 
-    const result = convert.xml2js(xmlText, { compact: true, spaces: 2 });
+    let result;
+    try {
+      result = convert.xml2js(xmlText, { compact: true, spaces: 2 });
+    } catch (parseError) {
+      console.error('Failed to parse XML:', parseError);
+      console.error('XML content that failed to parse:', xmlText);
+      return new NextResponse('Failed to parse XML from external API', { status: 500 });
+    }
+
     const cameraList = (result as any)?.response?.camera;
 
     if (!cameraList) {
+      console.error('Unexpected data structure from API. Parsed result:', result);
       return new NextResponse('Unexpected data structure from API', { status: 500 });
     }
 
     const cameras: any[] = Array.isArray(cameraList) ? cameraList : [cameraList];
 
     const cameraData = cameras.map(cam => {
+        if (!cam || !cam.latitude || !cam.longitude) {
+            return null;
+        }
+
         const lat = parseFloat(getText(cam.latitude));
         const lon = parseFloat(getText(cam.longitude));
 
@@ -54,10 +70,10 @@ export async function GET() {
             latitude: lat,
             longitude: lon,
             imageUrl: getText(cam.imageUrl),
-            viewUrl: `https://trafficnz.info${getText(cam.imageUrl)}`,
+            viewUrl: `https://trafficnz.info${getText(cam.viewUrl)}`,
             description: getText(cam.description),
             direction: getText(cam.direction),
-            status: 'Active',
+            status: getText(cam.offline) === 'true' ? 'Offline' : 'Active',
         }
     }).filter(Boolean);
 
