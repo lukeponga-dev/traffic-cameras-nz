@@ -146,15 +146,15 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             )}
             </Map>
             
-            <MapControl position={ControlPosition.TOP_CENTER}>
-              <div className="mt-2 md:mt-4 w-full px-2 md:px-4">
+            <MapControl position={isMobile ? ControlPosition.TOP_CENTER : ControlPosition.TOP_LEFT}>
+              <div className="m-2 md:m-4 w-full px-2 md:px-4">
                 <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border w-full max-w-md mx-auto">
                     <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
                 </div>
               </div>
             </MapControl>
 
-            <MapControl position={ControlPosition.RIGHT_BOTTOM}>
+            <MapControl position={isMobile ? ControlPosition.BOTTOM_CENTER : ControlPosition.RIGHT_BOTTOM}>
             <div className="m-2 md:m-4 flex flex-col items-center gap-2">
                 {destination && (
                 <Button variant="secondary" size="icon" className="shadow-lg" onClick={clearDirections} aria-label="Clear directions">
@@ -167,12 +167,14 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </div>
             </MapControl>
 
-            <MapControl position={ControlPosition.LEFT_BOTTOM}>
-              <div className="m-2 md:m-4 bg-card/80 backdrop-blur-sm rounded-lg p-2 shadow-md border max-w-md">
-                <p className='text-xs font-mono'>Lat: {location.latitude?.toFixed(4)}</p>
-                <p className='text-xs font-mono'>Lng: {location.longitude?.toFixed(4)}</p>
-              </div>
-            </MapControl>
+            {!isMobile && 
+              <MapControl position={ControlPosition.LEFT_BOTTOM}>
+                <div className="m-2 md:m-4 bg-card/80 backdrop-blur-sm rounded-lg p-2 shadow-md border max-w-md">
+                  <p className='text-xs font-mono'>Lat: {location.latitude?.toFixed(4)}</p>
+                  <p className='text-xs font-mono'>Lng: {location.longitude?.toFixed(4)}</p>
+                </div>
+              </MapControl>
+            }
 
             <BottomNavigation />
         </main>
