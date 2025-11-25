@@ -1,4 +1,3 @@
-
 import type {NextConfig} from 'next';
 
 const withPWA = require('next-pwa')({
@@ -21,7 +20,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Permissions-Policy',
-            value: 'geolocation=*, clipboard-read=(self), clipboard-write=(self)',
+            value: 'geolocation=*, clipboard-read=(self), clipboard-write=*',
           },
         ],
       },
