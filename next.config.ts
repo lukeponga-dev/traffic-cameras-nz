@@ -14,6 +14,19 @@
         eslint: {
           ignoreDuringBuilds: true,
         },
+        async headers() {
+          return [
+            {
+              source: '/(.*)',
+              headers: [
+                {
+                  key: 'Permissions-Policy',
+                  value: 'clipboard-read=*, clipboard-write=*',
+                },
+              ],
+            },
+          ];
+        },
         images: {
           remotePatterns: [
             {
