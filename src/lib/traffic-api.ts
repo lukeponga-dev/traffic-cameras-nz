@@ -45,7 +45,7 @@ export async function getCameras(xmlText?: string): Promise<Camera[]> {
 
     const result = convert.xml2js(data, { compact: true, spaces: 2 });
     
-    const cameraList = (result as any)?.response?.cameras?.camera;
+    const cameraList = (result as any)?.response?.camera;
 
     if (!cameraList) {
         console.error('Unexpected data structure from API. Full result:', JSON.stringify(result, null, 2));
@@ -65,7 +65,7 @@ export async function getCameras(xmlText?: string): Promise<Camera[]> {
         return {
             id: getText(cam.id),
             name: getText(cam.name),
-            region: getText(cam.region) || 'N/A',
+            region: getText(cam.region?.name) || 'N/A',
             latitude: lat,
             longitude: lon,
             imageUrl: getText(cam.imageUrl),
