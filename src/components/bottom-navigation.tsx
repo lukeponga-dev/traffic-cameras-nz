@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { Map, BarChart2, Bell, Settings } from "lucide-react";
+import { Map, BarChart2, Bell, Settings, Clapperboard } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ export function BottomNavigation() {
   const navItems = [
     { href: "/", label: "Map", icon: Map },
     { href: "/stats", label: "Stats", icon: BarChart2 },
+    { href: "/feed", label: "Live Feed", icon: Clapperboard },
     { href: "/alerts", label: "Alerts", icon: Bell },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
