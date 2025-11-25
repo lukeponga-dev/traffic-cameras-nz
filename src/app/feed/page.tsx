@@ -1,47 +1,39 @@
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
 import { BottomNavigation } from '@/components/bottom-navigation';
-import { TrafficCameraFeed } from './traffic-camera-feed';
-import type { Camera } from '@/lib/traffic-api';
+import { TrafficCamera } from './traffic-camera';
+import type { SpeedCamera } from '@/lib/types';
+import { useEffect, useState } from 'react';
 
 export default function FeedPage() {
-  const [cameras, setCameras] = useState<Camera[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [cameras, setCameras] = useState<SpeedCamera[]>([]);
 
   useEffect(() => {
     async function fetchCameras() {
       try {
-        const response = await fetch('/api/cameras');
-        const data = await response.json();
-        setCameras(data.cameras);
+        const res = await fetch('/api/cameras');
+        if (!res.ok) throw new Error('Failed to fetch cameras');
+        const data = await res.json();
+        setCameras(data);
       } catch (error) {
-        console.error('Error fetching cameras:', error);
+        console.error(error);
       }
-      setLoading(false);
     }
-
     fetchCameras();
   }, []);
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="p-4 border-b sticky top-0 bg-background z-10">
-        <h1 className="text-xl font-bold text-center">Live Feed</h1>
-      </header>
-      <main className="p-4 pb-20">
-        {loading ? (
-          <p className="text-center">Loading cameras...</p>
-        ) : (
-          <div>
-            {cameras.map((camera) => (
-              <TrafficCameraFeed key={camera.id} camera={camera} />
+        <header className="p-4 border-b sticky top-0 bg-background z-10">
+            <h1 className="text-xl font-bold text-center">Live Feed</h1>
+        </header>
+        <main className="p-4">
+            {cameras.map(camera => (
+                <TrafficCamera key={camera.id} camera={camera} />
             ))}
-          </div>
-        )}
-      </main>
-      <BottomNavigation />
+        </main>
+        <BottomNavigation />
     </div>
   );
 }
