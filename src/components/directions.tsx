@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useMap } from "@vis.gl/react-google-maps";
 
 interface DirectionsProps {
@@ -13,6 +13,7 @@ export function Directions({ origin, destination }: DirectionsProps) {
   const map = useMap();
   const [directionsRenderer, setDirectionsRenderer] =
     useState<google.maps.DirectionsRenderer | null>(null);
+  const isInitialRoute = useRef(true);
 
   useEffect(() => {
     if (!map) return;
@@ -54,16 +55,19 @@ export function Directions({ origin, destination }: DirectionsProps) {
         if (status === google.maps.DirectionsStatus.OK && result) {
           directionsRenderer.setDirections(result);
           
-          // Adjust map bounds to fit the route
-          const bounds = new google.maps.LatLngBounds();
-          result.routes[0].legs.forEach(leg => {
-              leg.steps.forEach(step => {
-                  step.path.forEach(path => {
-                      bounds.extend(path);
-                  })
-              })
-          })
-          map?.fitBounds(bounds);
+          if (isInitialRoute.current) {
+            // Adjust map bounds to fit the route on the initial load
+            const bounds = new google.maps.LatLngBounds();
+            result.routes[0].legs.forEach(leg => {
+                leg.steps.forEach(step => {
+                    step.path.forEach(path => {
+                        bounds.extend(path);
+                    })
+                })
+            })
+            map?.fitBounds(bounds);
+            isInitialRoute.current = false;
+          }
 
         } else {
           console.error(`error fetching directions ${result}`);
@@ -71,6 +75,11 @@ export function Directions({ origin, destination }: DirectionsProps) {
       }
     );
   }, [directionsRenderer, origin, destination, map]);
+
+  useEffect(() => {
+    // Reset the initial route flag when the destination changes
+    isInitialRoute.current = true;
+  }, [destination]);
 
   return null;
 }

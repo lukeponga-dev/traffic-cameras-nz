@@ -6,15 +6,21 @@ const getText = (node: any): string => (node && node._text ? node._text.toString
 
 export async function GET() {
   try {
-    const res = await fetch(
-      'https://trafficnz.info/service/traffic/rest/4/cameras/all',
-      {
-        next: { revalidate: 300 }, // Revalidate every 5 minutes
-      }
-    );
+    let res;
+    try {
+      res = await fetch(
+        'https://trafficnz.info/service/traffic/rest/4/cameras/all',
+        {
+          next: { revalidate: 300 }, // Revalidate every 5 minutes
+        }
+      );
+    } catch (fetchError) {
+      console.error('Failed to fetch from external API:', fetchError);
+      return new NextResponse('Failed to fetch from external API', { status: 502 }); // Bad Gateway
+    }
 
     if (!res.ok) {
-      return new NextResponse(`Failed to fetch from external API: ${res.statusText}`, {
+      return new NextResponse(`External API returned an error: ${res.statusText}`, {
         status: res.status,
       });
     }
