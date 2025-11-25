@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MapView from './components/MapView';
 import { Toaster, toast } from 'sonner';
+import { getRoadEvents, getCameras } from './api/nzta';
 
 export default function Home() {
+  const [events, setEvents] = useState([]);
+  const [cameras, setCameras] = useState([]);
+
   const handleClearRoute = () => {
     toast.success("Route cleared!");
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [eventsData, camerasData] = await Promise.all([
+        getRoadEvents(),
+        getCameras(),
+      ]);
+      setEvents(eventsData);
+      setCameras(camerasData);
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="h-screen flex flex-col">
@@ -23,7 +39,7 @@ export default function Home() {
       <div className="h-full grid grid-cols-12">
         {/* Map */}
         <div className="col-span-9">
-          <MapView cameras={[]} events={[]} />
+          <MapView cameras={cameras} events={events} />
         </div>
 
         {/* Sidebar */}
