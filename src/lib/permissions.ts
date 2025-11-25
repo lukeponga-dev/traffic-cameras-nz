@@ -22,8 +22,7 @@ export async function requestUserPermission() {
       console.log(`Geolocation permission is ${result.state}`);
        if (result.state === 'denied') {
         // Instructions for user to manually enable location services
-        // This could be a toast notification or a dialog
-        console.error('Geolocation permission has been denied. Please enable it in your browser settings.');
+        alert('Geolocation permission has been denied. To use this feature, please enable location services in your browser settings.');
       }
     });
   }
