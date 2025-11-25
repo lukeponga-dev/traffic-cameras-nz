@@ -1,16 +1,12 @@
 "use client";
 
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Camera } from '@/lib/traffic-api';
 import { SplashScreen } from '@/components/splash-screen';
 import { requestUserPermission } from '@/lib/permissions';
-import dynamic from 'next/dynamic';
+import { SpeedwatchApp } from '@/components/speedwatch-app';
 import { SpeedwatchAppSkeleton } from '@/components/speedwatch-app-skeleton';
-
-const CameraMap = dynamic(() => import('@/components/map'), {
-    ssr: false,
-    loading: () => <SpeedwatchAppSkeleton />
-});
+import { MapProvider } from '@/app/map-provider';
 
 export default function Home() {
   const [showApp, setShowApp] = useState(false);
@@ -38,11 +34,13 @@ export default function Home() {
     return <SplashScreen onComplete={() => setShowApp(true)} />;
   }
 
+  if (!cameraData) {
+    return <SpeedwatchAppSkeleton />;
+  }
+
   return (
-    <div className="relative h-screen">
-        <Suspense fallback={<SpeedwatchAppSkeleton />}>
-            {cameraData && <CameraMap cameras={cameraData} />}
-        </Suspense>
-    </div>
+    <MapProvider>
+      <SpeedwatchApp cameras={cameraData} />
+    </MapProvider>
   );
 }
