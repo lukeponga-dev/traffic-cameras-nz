@@ -1,8 +1,26 @@
 
+<<<<<<< HEAD
 'use client';
+=======
+const getText = (node: any): string => (node && node._text ? node._text.toString() : '');
+
+const CameraSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  region: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  imageUrl: z.string(),
+  viewUrl: z.string(),
+  description: z.string(),
+  direction: z.string(),
+  status: z.enum(['Active', 'Inactive']),
+});
+>>>>>>> 4e4a3d35123888229159e6a723949a781b8ada1f
 
 // 1. Type Definitions
 
+<<<<<<< HEAD
 export interface Bounds {
   minLat: number;
   minLon: number;
@@ -100,6 +118,83 @@ async function fetchWithFallback<T>(resource: string, params: Record<string, str
   } catch (err) {
     console.warn(`Fallback triggered for ${resource}:`, err);
     return []; // Return empty array on error
+=======
+// To be used by client components, fetches from the API route
+export async function getCameras(): Promise<Camera[]> {
+  try {
+    // If running on the server (during pre-rendering), use an absolute URL.
+    // If running on the client, use a relative URL.
+    const baseUrl = typeof window === 'undefined' ? 'http://127.0.0.1:3000' : '';
+    const res = await fetch(`${baseUrl}/api/cameras`);
+    if (!res.ok) {
+      throw new Error('Failed to fetch cameras');
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching cameras:', error);
+    return [];
+  }
+}
+
+// To be used by server components, fetches directly from the source
+export async function fetchAndProcessCameras(): Promise<Camera[]> {
+  try {
+    const res = await fetch(
+      'https://trafficnz.info/service/traffic/rest/4/cameras/all',
+      {
+        next: { revalidate: 300 }, // Revalidate every 5 minutes
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch cameras from external API');
+    }
+
+    const xmlText = await res.text();
+    if (!xmlText) {
+      throw new Error('External API returned empty response');
+    }
+
+    const result = convert.xml2js(xmlText, { compact: true, spaces: 2 });
+    const cameraList = (result as any)?.response?.camera;
+
+    if (!cameraList) {
+      throw new Error('Unexpected data structure from API');
+    }
+
+    const cameras: any[] = Array.isArray(cameraList) ? cameraList : [cameraList];
+
+    const cameraData = cameras.map(cam => {
+        if (!cam || !cam.latitude || !cam.longitude) {
+            return null;
+        }
+
+        const lat = parseFloat(getText(cam.latitude));
+        const lon = parseFloat(getText(cam.longitude));
+
+        if (isNaN(lat) || isNaN(lon)) {
+            return null;
+        }
+
+        return {
+            id: getText(cam.id),
+            name: getText(cam.name),
+            region: getText(cam.region?.name) || 'N/A',
+            latitude: lat,
+            longitude: lon,
+            imageUrl: getText(cam.imageUrl),
+            viewUrl: `https://trafficnz.info${getText(cam.viewUrl)}`,
+            description: getText(cam.description),
+            direction: getText(cam.direction),
+            status: getText(cam.offline) === 'true' ? 'Inactive' : 'Active',
+        }
+    }).filter(Boolean) as Camera[];
+
+    return cameraData;
+  } catch (error) {
+    console.error('Error fetching and processing cameras:', error);
+    return [];
+>>>>>>> 4e4a3d35123888229159e6a723949a781b8ada1f
   }
 }
 

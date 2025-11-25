@@ -1,4 +1,6 @@
+import { ReactNode } from 'react';
 
+<<<<<<< HEAD
 "use client";
 
 import * as React from "react";
@@ -144,8 +146,15 @@ function SpeedwatchAppInternal({ cameras: initialCameras }: SpeedwatchAppProps) 
   if (isMobile === undefined) {
     return <SpeedwatchAppSkeleton />;
   }
+=======
+interface SpeedWatchAppProps {
+  children: ReactNode;
+}
+>>>>>>> 4e4a3d35123888229159e6a723949a781b8ada1f
 
+export default function SpeedWatchApp({ children }: SpeedWatchAppProps) {
   return (
+<<<<<<< HEAD
     <div className="h-dvh w-screen relative overflow-hidden bg-background">
       <div className="h-dvh w-full relative flex">
          <Sidebar>
@@ -261,19 +270,10 @@ function SpeedwatchAppInternal({ cameras: initialCameras }: SpeedwatchAppProps) 
         onGetDirections={handleGetDirections}
         userLocation={{ latitude: location.latitude, longitude: location.longitude }}
       />
+=======
+    <div className="flex h-screen">
+      {children}
+>>>>>>> 4e4a3d35123888229159e6a723949a781b8ada1f
     </div>
-  );
-}
-
-interface SpeedwatchAppProps {
-  cameras: CameraType[];
-}
-
-export function SpeedwatchApp(props: SpeedwatchAppProps) {
-  const isMobile = useIsMobile();
-  return (
-    <SidebarProvider defaultOpen={!isMobile}>
-      <SpeedwatchAppInternal {...props} />
-    </SidebarProvider>
   );
 }

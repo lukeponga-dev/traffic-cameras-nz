@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+3
+>>>>>>> 4e4a3d35123888229159e6a723949a781b8ada1f
 
 # SpeedWatch Mobile
 

@@ -1,8 +1,12 @@
-
+import { fetchAndProcessCameras } from '@/lib/traffic-api';
 import { NextResponse } from 'next/server';
-import { getCameras } from '@/lib/traffic-api';
 
 export async function GET() {
-  const cameras = await getCameras();
-  return NextResponse.json(cameras);
+  try {
+    const cameraData = await fetchAndProcessCameras();
+    return NextResponse.json(cameraData);
+  } catch (error) {
+    console.error('API route error:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
 }

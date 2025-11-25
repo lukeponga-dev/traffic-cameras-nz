@@ -1,76 +1,52 @@
-
-"use client";
-
-import { useEffect, useState } from "react";
-import { useMap } from "@vis.gl/react-google-maps";
+'use client';
+import { useEffect, useRef } from "react";
+import { useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet-routing-machine";
+import { useGeolocation } from "@/hooks/use-geolocation";
+import { Camera } from "@/lib/types";
 
 interface DirectionsProps {
-  origin: google.maps.LatLng;
-  destination: google.maps.LatLng;
+  selectedCamera: Camera | null;
 }
 
-export function Directions({ origin, destination }: DirectionsProps) {
+export default function Directions({ selectedCamera }: DirectionsProps) {
   const map = useMap();
-  const [directionsRenderer, setDirectionsRenderer] =
-    useState<google.maps.DirectionsRenderer | null>(null);
+  const { location } = useGeolocation();
+  const routingControlRef = useRef<L.Routing.Control | null>(null);
 
   useEffect(() => {
-    if (!map) return;
-    
-    // Initialize DirectionsRenderer
-    if (!directionsRenderer) {
-      const renderer = new google.maps.DirectionsRenderer({
-        suppressMarkers: true, // We use our own markers
-        polylineOptions: {
-            strokeColor: 'hsl(var(--primary))',
-            strokeOpacity: 0.8,
-            strokeWeight: 6
-        }
-      });
-      renderer.setMap(map);
-      setDirectionsRenderer(renderer);
-    }
-    
-    return () => {
-        // Clean up renderer on unmount
-        if (directionsRenderer) {
-            directionsRenderer.setMap(null);
-        }
-    }
-  }, [map, directionsRenderer]);
-
-  useEffect(() => {
-    if (!directionsRenderer || !origin || !destination) return;
-
-    const directionsService = new google.maps.DirectionsService();
-
-    directionsService.route(
-      {
-        origin: origin,
-        destination: destination,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK && result) {
-          directionsRenderer.setDirections(result);
-          
-          // Adjust map bounds to fit the route
-          const bounds = new google.maps.LatLngBounds();
-          result.routes[0].legs.forEach(leg => {
-              leg.steps.forEach(step => {
-                  step.path.forEach(path => {
-                      bounds.extend(path);
-                  })
-              })
-          })
-          map?.fitBounds(bounds);
-
-        } else {
-          console.error(`error fetching directions ${result}`);
-        }
+    if (!location || !selectedCamera) {
+      if (routingControlRef.current) {
+        map.removeControl(routingControlRef.current);
+        routingControlRef.current = null;
       }
-    );
-  }, [directionsRenderer, origin, destination, map]);
+      return;
+    }
+
+    const waypoints = [
+      L.latLng(location[0], location[1]),
+      L.latLng(selectedCamera.latitude, selectedCamera.longitude),
+    ];
+
+    if (!routingControlRef.current) {
+      routingControlRef.current = L.Routing.control({
+        waypoints,
+        routeWhileDragging: true,
+      }).addTo(map);
+    } else {
+      routingControlRef.current.setWaypoints(waypoints);
+    }
+  }, [map, location, selectedCamera]);
+
+  useEffect(() => {
+    return () => {
+      if (routingControlRef.current) {
+        map.removeControl(routingControlRef.current);
+        routingControlRef.current = null;
+      }
+    };
+  }, [map]);
 
   return null;
 }

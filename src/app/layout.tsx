@@ -2,6 +2,7 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/toaster';
+import 'leaflet/dist/leaflet.css';
 import './globals.css';
 import { Inter } from 'next/font/google';
 
