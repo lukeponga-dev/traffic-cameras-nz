@@ -1,24 +1,18 @@
 
-"use client";
+'use client';
 
 import { BottomNavigation } from '@/components/bottom-navigation';
-import { TrafficCamera } from './traffic-camera';
-import type { SpeedCamera } from '@/lib/types';
+import { TrafficCameraFeed } from '@/components/traffic-camera-feed';
+import { getCameras, type Camera } from '@/lib/traffic-api';
 import { useEffect, useState } from 'react';
 
 export default function FeedPage() {
-  const [cameras, setCameras] = useState<SpeedCamera[]>([]);
+  const [cameras, setCameras] = useState<Camera[]>([]);
 
   useEffect(() => {
     async function fetchCameras() {
-      try {
-        const res = await fetch('/api/cameras');
-        if (!res.ok) throw new Error('Failed to fetch cameras');
-        const data = await res.json();
-        setCameras(data);
-      } catch (error) {
-        console.error(error);
-      }
+      const fetchedCameras = await getCameras();
+      setCameras(fetchedCameras);
     }
     fetchCameras();
   }, []);
@@ -30,7 +24,7 @@ export default function FeedPage() {
         </header>
         <main className="p-4">
             {cameras.map(camera => (
-                <TrafficCamera key={camera.id} camera={camera} />
+                <TrafficCameraFeed key={camera.id} camera={camera} />
             ))}
         </main>
         <BottomNavigation />
