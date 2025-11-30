@@ -64,8 +64,8 @@ const reportFormSchema = z.object({
     .max(500, {
       message: "Description must not be longer than 500 characters.",
     }),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
 });
 
 type ReportFormValues = z.infer<typeof reportFormSchema>;
@@ -137,7 +137,7 @@ export function ReportDialog({ onOpenChange, selectedCamera, userLocation, child
   };
   
   useEffect(() => {
-    form.setValue('cameraId', selectedCamera?.id || "N/A");
+    form.setValue('cameraId', selectedCamera?.id || "");
     if (userLocation.latitude && userLocation.longitude) {
       form.setValue('latitude', userLocation.latitude);
       form.setValue('longitude', userLocation.longitude);

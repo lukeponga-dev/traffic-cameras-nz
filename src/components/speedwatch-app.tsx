@@ -1,4 +1,6 @@
+import { ReactNode } from 'react';
 
+<<<<<<< HEAD
 "use client";
 
 import * as React from "react";
@@ -8,11 +10,12 @@ import {
   ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { LocateFixed, X, PanelLeft, ListFilter } from "lucide-react";
+import { LocateFixed, X, PanelLeft, ListFilter, Search, Car, Globe } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
-import type { Camera as CameraType } from "@/lib/traffic-api";
+import type { Camera as CameraType, RoadEvent } from "@/lib/traffic-api";
+import { getCameras, getRoadEventsByRegion } from "@/lib/traffic-api";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -22,6 +25,7 @@ import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 import { SidebarContent } from "@/components/sidebar-content";
 import { CameraMarker } from "./camera-marker";
+import { EventMarker } from "./event-marker";
 import { CameraDetailsSheet } from "./camera-details-sheet";
 import { SpeedwatchAppSkeleton } from "./speedwatch-app-skeleton";
 import { UserLocationMarker } from "./user-location-marker";
@@ -31,12 +35,14 @@ import { BottomNavigation } from "./bottom-navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
 import { PlaceAutocomplete } from "./place-autocomplete";
+import { Input } from "./ui/input";
 
-function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
+function SpeedwatchAppInternal({ cameras: initialCameras }: SpeedwatchAppProps) {
+  const [cameraData, setCameraData] = useState<CameraType[]>(initialCameras);
   const [selectedCamera, setSelectedCamera] = useState<CameraType | null>(null);
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
-  const [cameraData, setCameraData] = useState<CameraType[]>(cameras);
+  const [eventData, setEventData] = useState<RoadEvent[]>([]);
   const [isCameraDrawerOpen, setIsCameraDrawerOpen] = useState(false);
 
   const map = useMap();
@@ -46,21 +52,15 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
 
   useEffect(() => {
-    async function fetchCameras() {
-      try {
-        const res = await fetch("/api/cameras");
-        if (!res.ok) throw new Error("Failed to fetch cameras");
-        const xmlText = await res.text();
-        // This is a workaround to parse the data on the client.
-        // Ideally this would be done on the server.
-        const { getCameras: parseCameras } = await import('@/lib/traffic-api');
-        const data = await parseCameras(xmlText);
-        setCameraData(data);
-      } catch (error) {
-        console.error(error);
-      }
+    async function loadData() {
+        const [cameras, events] = await Promise.all([
+          getCameras(),
+          getRoadEventsByRegion('waikato')
+        ]);
+        setCameraData(cameras);
+        setEventData(events);
     }
-    fetchCameras();
+    loadData();
   }, []);
 
   const handleMarkerClick = (camera: CameraType) => {
@@ -101,7 +101,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
   const handleGetDirections = (camera: CameraType) => {
     if (window.google && window.google.maps && window.google.maps.LatLng) {
-      setDestination(new window.google.maps.LatLng(camera.latitude, camera.longitude));
+      setDestination(new window.google.maps.LatLng(camera.lat, camera.lon));
     }
     setSelectedCamera(null);
   };
@@ -114,7 +114,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
 
   useEffect(() => {
     if (selectedCamera && map) {
-      map.panTo({ lat: selectedCamera.latitude, lng: selectedCamera.longitude });
+      map.panTo({ lat: selectedCamera.lat, lng: selectedCamera.lon });
       map.setZoom(14);
     }
   }, [selectedCamera, map]);
@@ -146,8 +146,15 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
   if (isMobile === undefined) {
     return <SpeedwatchAppSkeleton />;
   }
+=======
+interface SpeedWatchAppProps {
+  children: ReactNode;
+}
+>>>>>>> 4e4a3d35123888229159e6a723949a781b8ada1f
 
+export default function SpeedWatchApp({ children }: SpeedWatchAppProps) {
   return (
+<<<<<<< HEAD
     <div className="h-dvh w-screen relative overflow-hidden bg-background">
       <div className="h-dvh w-full relative flex">
          <Sidebar>
@@ -185,6 +192,13 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
                 onClick={() => handleMarkerClick(camera)}
                 />
             ))}
+            {eventData.map((event) => (
+                <EventMarker
+                    key={event.id}
+                    event={event}
+                    onClick={() => console.log(event)}
+                />
+            ))}
             <UserLocationMarker />
             {origin && destination && (
                 <Directions origin={origin} destination={destination} />
@@ -192,24 +206,23 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </Map>
             
             <MapControl position={ControlPosition.TOP_LEFT}>
-            <div className="m-2 md:m-4 flex items-center gap-2">
+            <div className="m-2 md:m-4 flex items-center gap-2 w-full max-w-sm md:max-w-md">
                 <div className="md:hidden bg-card/80 backdrop-blur-sm rounded-lg shadow-md border">
                     <SidebarTrigger/>
                 </div>
-                <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border">
-                
-                <div className="hidden md:flex items-center gap-2">
-                    <Logo />
-                    <Separator orientation="vertical" className="h-6" />
-                </div>
-                <div className="flex gap-2">
-                    <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
-                    <Button variant="outline" size="icon">
-                    <ListFilter className="h-4 w-4"/>
+                <div className="bg-card/80 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 shadow-md border flex-1">
+                    <div className="hidden md:flex items-center gap-2">
+                        <Logo />
+                        <Separator orientation="vertical" className="h-6" />
+                    </div>
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Search location or Camera ID" className="pl-9 bg-background/50" />
+                    </div>
+                    <Button variant="ghost" size="icon" className="flex-shrink-0">
+                        <ListFilter className="h-4 w-4"/>
                     </Button>
                 </div>
-                </div>
-                
             </div>
             </MapControl>
 
@@ -226,7 +239,7 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
             </div>
             </MapControl>
 
-            {isMobile && <BottomNavigation onCameraListToggle={() => setIsCameraDrawerOpen(true)} />}
+            {isMobile && <BottomNavigation />}
         </main>
       </div>
 
@@ -257,19 +270,10 @@ function SpeedwatchAppInternal({ cameras }: SpeedwatchAppProps) {
         onGetDirections={handleGetDirections}
         userLocation={{ latitude: location.latitude, longitude: location.longitude }}
       />
+=======
+    <div className="flex h-screen">
+      {children}
+>>>>>>> 4e4a3d35123888229159e6a723949a781b8ada1f
     </div>
-  );
-}
-
-interface SpeedwatchAppProps {
-  cameras: CameraType[];
-}
-
-export function SpeedwatchApp(props: SpeedwatchAppProps) {
-  const isMobile = useIsMobile();
-  return (
-    <SidebarProvider defaultOpen={!isMobile}>
-      <SpeedwatchAppInternal {...props} />
-    </SidebarProvider>
   );
 }

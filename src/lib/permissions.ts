@@ -16,11 +16,14 @@ export async function requestUserPermission() {
     }
   }
 
-  // Geolocation permission is implicitly requested by useGeolocation hook
-  // but we can check the status here.
+  // Request Geolocation permission
   if ('geolocation' in navigator) {
     navigator.permissions.query({ name: 'geolocation' }).then((result) => {
       console.log(`Geolocation permission is ${result.state}`);
+       if (result.state === 'denied') {
+        // Instructions for user to manually enable location services
+        alert('Geolocation permission has been denied. To use this feature, please enable location services in your browser settings.');
+      }
     });
   }
 }
